@@ -24,12 +24,34 @@ python3 Scripts/render-profile.py
 python3 Scripts/check
 ```
 
-The catalog must list every public repository of the organization except this
-one. The check compares it with the organization's repositories on GitHub.
+The catalog must list every public, non-archived repository of the
+organization except `.github`. The check compares it with the organization's
+repositories on GitHub.
 
 ## Change the icon
 
-Edit the app icon entry in `DESIGN.md` or the artwork in `Brand/Icon/`, then
-regenerate the Icon Composer document and the rendered avatar and profile mark
-from the entry. Open `Brand/Exports/skill-cli/skill-cli.icon` in Icon Composer
-to review the materials and appearances before committing.
+The icon is generated from the app icon entry in `DESIGN.md` by `app_icons.py`
+from the [apple-app-icon-design](https://github.com/showxu/skills/tree/master/skills/apple-app-icon-design)
+skill. Native Liquid Glass rendering needs macOS with Xcode's Icon Composer
+and `rsvg-convert`.
+
+Edit the entry or the artwork in `Brand/Icon/`, then run, with `APP_ICONS`
+set to that `app_icons.py`:
+
+```sh
+python3 "$APP_ICONS" DESIGN.md --name skill-cli --lint
+python3 "$APP_ICONS" DESIGN.md --name skill-cli --style liquid-glass --out .build/icon
+python3 "$APP_ICONS" DESIGN.md --name skill-cli --style liquid-glass --out .build/icon-document --document-only
+```
+
+Review `.build/icon/contact-sheet.png` and open the generated `.icon` in Icon
+Composer, then replace the committed outputs:
+
+| Generated | Committed |
+| --- | --- |
+| `.build/icon-document/` | `Brand/Exports/skill-cli/` |
+| `.build/icon/web/avatar-1024.png` | `profile/assets/avatar.png` |
+| `.build/icon/web/icon-512.png` | `profile/assets/icon.png` |
+
+`python3 "$APP_ICONS" DESIGN.md --name skill-cli --style liquid-glass --check Brand/Exports/skill-cli --document-only`
+reports any drift between the entry and the committed document.
