@@ -19,6 +19,12 @@ def render_summary(summary):
 
 
 def render(catalog):
+    commands = catalog["quickstart"]["commands"]
+    for index, command in enumerate(commands):
+        if "\n" in command or "\r" in command:
+            raise ValueError(f"quickstart.commands[{index}] must be a single line")
+        if "```" in command:
+            raise ValueError(f"quickstart.commands[{index}] must not contain three consecutive backticks")
     organization = html.escape(catalog["organization"])
     promise = catalog["promise"]
     mark = catalog["mark"]
@@ -40,7 +46,7 @@ def render(catalog):
         f'### {html.escape(catalog["quickstart"]["title"])}',
         "",
         "```sh",
-        *(html.escape(command) for command in catalog["quickstart"]["commands"]),
+        *commands,
         "```",
     ]
     for group in catalog["groups"]:

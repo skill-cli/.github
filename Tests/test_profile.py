@@ -10,6 +10,7 @@ import re
 import shutil
 import subprocess
 import sys
+import traceback
 import unittest
 from unittest import mock
 from urllib.error import URLError
@@ -100,7 +101,7 @@ second
 </table>
 ''')
 
-    def test_all_rendered_catalog_text_is_html_escaped(self):
+    def test_html_contexts_escape_catalog_text(self):
         raw = '<tag> & "quote" \'single\''
         escaped = '&lt;tag&gt; &amp; &quot;quote&quot; &#x27;single&#x27;'
 
@@ -111,17 +112,37 @@ second
                 return [replace_text(item) for item in value]
             return raw
 
-        rendered = renderer.render(replace_text(committed_catalog()))
+        catalog = replace_text(committed_catalog())
+        catalog["quickstart"]["commands"] = ["skill list"]
+        rendered = renderer.render(catalog)
         self.assertNotIn(raw, rendered)
         for fragment in (
             f'/{escaped}/.github/master/{escaped}" width="128" alt="{escaped}"',
             f"<h1>{escaped}</h1>", f"<p>{escaped}</p>",
             f'<a href="{escaped}">{escaped}</a>', f"### {escaped}",
-            f"```sh\n{escaped}\n", f'/{escaped}/{escaped}">{escaped}</a>',
+            f'/{escaped}/{escaped}">{escaped}</a>',
             f"<br>{escaped}</td>",
         ):
             with self.subTest(fragment=fragment):
                 self.assertIn(fragment, rendered)
+
+    def test_quickstart_commands_preserve_shell_text_verbatim(self):
+        catalog = committed_catalog()
+        commands = ['skill add owner/repo --agent "*" > skills.txt && echo \'<done & ready>\'', 'echo "`pwd`"']
+        catalog["quickstart"]["commands"] = commands
+        checks.validate_catalog(catalog)
+        rendered = renderer.render(catalog)
+        self.assertIn("```sh\n" + "\n".join(commands) + "\n```", rendered)
+
+    def test_quickstart_rejects_line_breaks_and_fence_backticks(self):
+        for command in ("first\nsecond", "skill list\n", "first\rsecond", "first\r\nsecond", "```", "   ````  ", "echo ```"):
+            with self.subTest(command=command):
+                catalog = committed_catalog()
+                catalog["quickstart"]["commands"] = [command]
+                for validate in (renderer.render, checks.validate_catalog):
+                    with self.subTest(validate=validate.__name__):
+                        with self.assertRaisesRegex(ValueError, r"quickstart.commands\[0\]"):
+                            validate(catalog)
 
     def test_summary_code_spans_escape_contents_and_preserve_unmatched_backticks(self):
         self.assertEqual(
@@ -184,6 +205,19 @@ class RenderCommandTests(unittest.TestCase):
                 self.assertEqual(status, 1)
                 self.assertIn("@@", output)
                 self.assertEqual(self.destination.read_bytes(), actual)
+
+    def test_invalid_command_never_overwrites_generated_profile(self):
+        self.destination.write_bytes(self.expected)
+        catalog = committed_catalog()
+        catalog["quickstart"]["commands"] = ["```"]
+        (self.root / "profile/catalog.json").write_text(json.dumps(catalog), encoding="utf-8")
+        before = self.destination.stat().st_mtime_ns
+        for arguments in ([], ["--check"]):
+            with self.subTest(arguments=arguments), contextlib.redirect_stderr(io.StringIO()) as error:
+                self.assertEqual(renderer.main(arguments, root=self.root), 1)
+                self.assertIn("three consecutive backticks", error.getvalue())
+                self.assertEqual(self.destination.read_bytes(), self.expected)
+                self.assertEqual(self.destination.stat().st_mtime_ns, before)
 
 
 class CatalogValidationTests(unittest.TestCase):
@@ -308,14 +342,33 @@ class MembershipTests(unittest.TestCase):
 
     def test_api_failure_is_explicit(self):
         opener = mock.Mock(side_effect=URLError("unreachable"))
-        with self.assertRaisesRegex(ValueError, "could not read GitHub API:.*unreachable"):
+        with self.assertRaisesRegex(ValueError, "^could not read GitHub API: request or response failed$"):
             checks.fetch_repositories("skill-cli", opener=opener)
 
     def test_interrupted_response_is_reported_as_api_failure(self):
         response = Response([])
         response.read = mock.Mock(side_effect=IncompleteRead(b"[", 12))
-        with self.assertRaisesRegex(ValueError, "could not read GitHub API:.*IncompleteRead"):
+        with self.assertRaisesRegex(ValueError, "^could not read GitHub API: request or response failed$"):
             checks.fetch_repositories("skill-cli", opener=mock.Mock(return_value=response))
+
+    def test_request_exception_traceback_does_not_echo_headers(self):
+        token = "test-token-never-log"
+        for failure in (
+            ValueError(f"Invalid header value {('Bearer ' + token).encode()!r}"),
+            URLError(f"Authorization: Bearer {token}"),
+            IncompleteRead(token.encode(), 12),
+        ):
+            with self.subTest(failure=type(failure).__name__):
+                opener = mock.Mock(side_effect=failure)
+                try:
+                    checks.fetch_repositories("skill-cli", token, opener=opener)
+                except ValueError as error:
+                    formatted = "".join(traceback.format_exception(type(error), error, error.__traceback__))
+                    self.assertNotIn(token, formatted)
+                    self.assertNotIn("Authorization", formatted)
+                    self.assertIn("could not read GitHub API: request or response failed", formatted)
+                else:
+                    self.fail("Expected a safe request failure")
 
     def test_invalid_api_payloads_fail(self):
         for payload in ({"message": "error"}, [None], [{"name": "missing-flags"}]):
@@ -383,10 +436,52 @@ class CheckCommandTests(unittest.TestCase):
         fetch.assert_not_called()
 
     def test_api_failure_returns_failure_and_clear_message(self):
-        status, lines, _, _ = self.run_checks([], api_error=ValueError("could not read GitHub API: unreachable"))
+        status, lines, _, _ = self.run_checks([], api_error=ValueError("could not read GitHub API: request or response failed"))
         self.assertEqual(status, 1)
         self.assertEqual(len(lines), 3)
-        self.assertEqual(lines[2], "FAIL repository membership: could not read GitHub API: unreachable")
+        self.assertEqual(lines[2], "FAIL repository membership: could not read GitHub API: request or response failed")
+
+    def run_with_opener(self, token, opener):
+        fetch = checks.fetch_repositories
+        output = io.StringIO()
+        error = io.StringIO()
+        with contextlib.redirect_stdout(output), contextlib.redirect_stderr(error), mock.patch.object(
+            checks.subprocess, "run", return_value=subprocess.CompletedProcess([], 0)
+        ), mock.patch.object(
+            checks, "fetch_repositories",
+            side_effect=lambda organization, token: fetch(organization, token, opener=opener),
+        ), mock.patch.object(checks.os, "environ", {"GITHUB_TOKEN": token}):
+            status = checks.main([])
+        self.assertEqual(status, 1)
+        self.assertEqual(error.getvalue(), "")
+        lines = output.getvalue().splitlines()
+        self.assertEqual(len(lines), 3)
+        return lines[2]
+
+    def test_malformed_token_is_rejected_without_a_request_or_disclosure(self):
+        for character in (" ", "\t", "\n", "\r", "\x00", "\x1f", "\x7f", "\x85", "\u00a0", "\u200b"):
+            with self.subTest(character=repr(character)):
+                opener = mock.Mock()
+                line = self.run_with_opener("test-token-never-log" + character, opener)
+                self.assertEqual(line, "FAIL repository membership: GITHUB_TOKEN must not contain whitespace or control characters")
+                self.assertNotIn("test-token-never-log", line)
+                opener.assert_not_called()
+
+    def test_request_and_response_errors_never_print_authorization_headers(self):
+        token = "test-token-never-log"
+        for stage in ("request", "response"):
+            with self.subTest(stage=stage):
+                failure = ValueError(f"Invalid header value {('Bearer ' + token).encode()!r}")
+                if stage == "request":
+                    opener = mock.Mock(side_effect=failure)
+                else:
+                    response = Response([])
+                    response.read = mock.Mock(side_effect=failure)
+                    opener = mock.Mock(return_value=response)
+                line = self.run_with_opener(token, opener)
+                self.assertEqual(line, "FAIL repository membership: could not read GitHub API: request or response failed")
+                self.assertNotIn(token, line)
+                opener.assert_called_once()
 
 
 if __name__ == "__main__":

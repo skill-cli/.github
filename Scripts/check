@@ -56,6 +56,8 @@ def validate_catalog(catalog, root=ROOT):
         text_value(command, f"quickstart.commands[{index}]")
         if "\n" in command or "\r" in command:
             raise ValueError(f"quickstart.commands[{index}] must be a single line")
+        if "```" in command:
+            raise ValueError(f"quickstart.commands[{index}] must not contain three consecutive backticks")
     names = set()
     for index, group in enumerate(list_value(catalog.get("groups"), "groups")):
         prefix = f"groups[{index}]"
@@ -73,6 +75,8 @@ def validate_catalog(catalog, root=ROOT):
 
 
 def fetch_repositories(organization, token=None, *, opener=urlopen):
+    if token and any(character.isspace() or not character.isprintable() for character in token):
+        raise ValueError("GITHUB_TOKEN must not contain whitespace or control characters")
     endpoint = f"https://api.github.com/orgs/{quote(organization, safe='')}/repos"
     url = endpoint + "?type=public&per_page=100"
     headers = {"Accept": "application/vnd.github+json", "User-Agent": "organization-profile-check"}
@@ -88,8 +92,9 @@ def fetch_repositories(organization, token=None, *, opener=urlopen):
             with opener(Request(url, headers=headers), timeout=30) as response:
                 page = json.load(response)
                 links = response.headers.get("Link", "")
-        except (HTTPException, OSError, ValueError) as error:
-            raise ValueError(f"could not read GitHub API: {error}") from error
+        except (HTTPException, OSError, ValueError):
+            # Request exceptions can contain authorization headers.
+            raise ValueError("could not read GitHub API: request or response failed") from None
         if not isinstance(page, list) or any(
             not isinstance(repository, dict)
             or not isinstance(repository.get("name"), str)
