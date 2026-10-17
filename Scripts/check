@@ -1,0 +1,177 @@
+#!/usr/bin/env python3
+"""Check the catalog, generated profile and public repository membership."""
+
+import argparse
+from http.client import HTTPException
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import sys
+from urllib.parse import quote, urlsplit
+from urllib.request import Request, urlopen
+
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def validate_catalog(catalog, root=ROOT):
+    def object_value(value, path):
+        if not isinstance(value, dict):
+            raise ValueError(f"{path} must be an object")
+        return value
+
+    def text_value(value, path):
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError(f"{path} must be a non-empty string")
+        return value
+
+    def list_value(value, path):
+        if not isinstance(value, list) or not value:
+            raise ValueError(f"{path} must be a non-empty list")
+        return value
+
+    object_value(catalog, "catalog")
+    text_value(catalog.get("organization"), "organization")
+    promise = object_value(catalog.get("promise"), "promise")
+    for key in ("heading", "secondary", "description"):
+        text_value(promise.get(key), f"promise.{key}")
+    mark = object_value(catalog.get("mark"), "mark")
+    path = Path(text_value(mark.get("path"), "mark.path"))
+    text_value(mark.get("alt"), "mark.alt")
+    if path.is_absolute() or ".." in path.parts or not (root / path).is_file():
+        raise ValueError("mark.path must name an existing file inside the repository")
+    for index, link in enumerate(list_value(catalog.get("navigation"), "navigation")):
+        prefix = f"navigation[{index}]"
+        object_value(link, prefix)
+        text_value(link.get("title"), f"{prefix}.title")
+        url = text_value(link.get("url"), f"{prefix}.url")
+        parsed = urlsplit(url)
+        if not url.startswith("https://") or not parsed.hostname:
+            raise ValueError(f"{prefix}.url must be an https:// URL with a host")
+    quickstart = object_value(catalog.get("quickstart"), "quickstart")
+    text_value(quickstart.get("title"), "quickstart.title")
+    for index, command in enumerate(list_value(quickstart.get("commands"), "quickstart.commands")):
+        text_value(command, f"quickstart.commands[{index}]")
+        if "\n" in command or "\r" in command:
+            raise ValueError(f"quickstart.commands[{index}] must be a single line")
+    names = set()
+    for index, group in enumerate(list_value(catalog.get("groups"), "groups")):
+        prefix = f"groups[{index}]"
+        object_value(group, prefix)
+        text_value(group.get("title"), f"{prefix}.title")
+        repositories = list_value(group.get("repositories"), f"{prefix}.repositories")
+        for repo_index, repository in enumerate(repositories):
+            repo_prefix = f"{prefix}.repositories[{repo_index}]"
+            object_value(repository, repo_prefix)
+            name = text_value(repository.get("name"), f"{repo_prefix}.name")
+            text_value(repository.get("summary"), f"{repo_prefix}.summary")
+            if name.casefold() in names:
+                raise ValueError(f"duplicate repository name: {name}")
+            names.add(name.casefold())
+
+
+def fetch_repositories(organization, token=None, *, opener=urlopen):
+    endpoint = f"https://api.github.com/orgs/{quote(organization, safe='')}/repos"
+    url = endpoint + "?type=public&per_page=100"
+    headers = {"Accept": "application/vnd.github+json", "User-Agent": "organization-profile-check"}
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    repositories = []
+    visited = set()
+    while url:
+        if url in visited:
+            raise ValueError("GitHub API pagination repeated a page")
+        visited.add(url)
+        try:
+            with opener(Request(url, headers=headers), timeout=30) as response:
+                page = json.load(response)
+                links = response.headers.get("Link", "")
+        except (HTTPException, OSError, ValueError) as error:
+            raise ValueError(f"could not read GitHub API: {error}") from error
+        if not isinstance(page, list) or any(
+            not isinstance(repository, dict)
+            or not isinstance(repository.get("name"), str)
+            or not repository["name"]
+            or not isinstance(repository.get("archived"), bool)
+            or not isinstance(repository.get("private"), bool)
+            for repository in page
+        ):
+            raise ValueError("GitHub API returned an invalid repository list")
+        repositories.extend(page)
+        next_link = re.search(r'<([^>]+)>;\s*rel="next"', links)
+        url = next_link.group(1) if next_link else None
+        if url:
+            parsed = urlsplit(url)
+            if (parsed.scheme, parsed.netloc, parsed.path) != (
+                "https", "api.github.com", urlsplit(endpoint).path
+            ):
+                raise ValueError("GitHub API pagination points outside the repository endpoint")
+    return repositories
+
+
+def compare_membership(catalog, repositories):
+    expected = {
+        repository["name"]
+        for repository in repositories
+        if not repository["private"] and not repository["archived"] and repository["name"] != ".github"
+    }
+    actual = {
+        repository["name"]
+        for group in catalog["groups"]
+        for repository in group["repositories"]
+    }
+    differences = []
+    if expected - actual:
+        differences.append("missing from catalog: " + ", ".join(sorted(expected - actual)))
+    if actual - expected:
+        differences.append("extra in catalog: " + ", ".join(sorted(actual - expected)))
+    if differences:
+        raise ValueError("; ".join(differences))
+
+
+def main(argv=None, *, root=ROOT):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--offline", action="store_true", help="skip only the GitHub membership check")
+    args = parser.parse_args(argv)
+    failed = False
+    catalog = None
+    try:
+        candidate = json.loads((root / "profile/catalog.json").read_text(encoding="utf-8"))
+        validate_catalog(candidate, root)
+        catalog = candidate
+        print("PASS catalog validation")
+    except (OSError, UnicodeError, ValueError) as error:
+        print("FAIL catalog validation: " + " ".join(str(error).splitlines()))
+        failed = True
+
+    try:
+        result = subprocess.run(
+            [sys.executable, str(root / "Scripts/render-profile.py"), "--check"],
+            cwd=root, capture_output=True, text=True, check=False,
+        )
+        if result.returncode:
+            raise ValueError("run python3 Scripts/render-profile.py --check for details")
+        print("PASS generated profile")
+    except (OSError, ValueError) as error:
+        print("FAIL generated profile: " + " ".join(str(error).splitlines()))
+        failed = True
+
+    if args.offline:
+        print("SKIP repository membership (--offline)")
+    else:
+        try:
+            if catalog is None:
+                raise ValueError("cannot compare an invalid catalog")
+            repositories = fetch_repositories(catalog["organization"], os.environ.get("GITHUB_TOKEN"))
+            compare_membership(catalog, repositories)
+            print("PASS repository membership")
+        except (OSError, ValueError) as error:
+            print("FAIL repository membership: " + " ".join(str(error).splitlines()))
+            failed = True
+    return int(failed)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
