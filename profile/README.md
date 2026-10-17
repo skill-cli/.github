@@ -12,7 +12,7 @@
 ```sh
 brew install skill-cli/tap/skill-cli
 skill add owner/repo --skill name
-skill install
+skill list
 ```
 
 ### Manage skills
