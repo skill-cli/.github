@@ -1,0 +1,58 @@
+{
+  "organization": "skill-cli",
+  "promise": {
+    "heading": "Install, restore and watch agent skills from the command line.",
+    "secondary": "One native CLI pins where each skill comes from and installs it for Codex, Claude Code, Cursor, Gemini CLI and OpenCode.",
+    "description": "Install, restore and watch agent skills for Codex, Claude Code, Cursor, Gemini CLI and OpenCode."
+  },
+  "mark": {
+    "path": "profile/assets/icon.png",
+    "alt": "skill-cli icon"
+  },
+  "navigation": [
+    {
+      "title": "Documentation",
+      "url": "https://github.com/skill-cli/cli/blob/master/Documentation/Reference/CLI.md"
+    },
+    {
+      "title": "Contributing",
+      "url": "https://github.com/skill-cli/cli/blob/master/CONTRIBUTING.md"
+    },
+    {
+      "title": "Security",
+      "url": "https://github.com/skill-cli/cli/blob/master/SECURITY.md"
+    },
+    {
+      "title": "Support",
+      "url": "https://github.com/skill-cli/cli/blob/master/SUPPORT.md"
+    }
+  ],
+  "quickstart": {
+    "title": "Get started",
+    "commands": [
+      "brew install skill-cli/tap/skill-cli",
+      "skill add owner/repo --skill name",
+      "skill install"
+    ]
+  },
+  "groups": [
+    {
+      "title": "Manage skills",
+      "repositories": [
+        {
+          "name": "cli",
+          "summary": "The `skill` command: add skills from local paths, Git repositories or well-known indexes, pin them, restore installs and review watched sources."
+        }
+      ]
+    },
+    {
+      "title": "Install the CLI",
+      "repositories": [
+        {
+          "name": "homebrew-tap",
+          "summary": "Homebrew formula that installs `skill`."
+        }
+      ]
+    }
+  ]
+}

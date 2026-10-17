@@ -1,0 +1,39 @@
+{
+  "fill": {
+    "automatic-gradient": "srgb:0.05490,0.48627,0.45490,1.00000"
+  },
+  "groups": [
+    {
+      "name": "Spark",
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.5
+      },
+      "layers": [
+        {
+          "image-name": "02-01.svg",
+          "name": "Spark"
+        }
+      ]
+    },
+    {
+      "name": "Prompt",
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.5
+      },
+      "layers": [
+        {
+          "image-name": "01-01.svg",
+          "name": "Prompt"
+        }
+      ]
+    }
+  ],
+  "supported-platforms": {
+    "circles": [
+      "watchOS"
+    ],
+    "squares": "shared"
+  }
+}
