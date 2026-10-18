@@ -28,6 +28,11 @@ The catalog must list every public, non-archived repository of the
 organization except `.github`. The check compares it with the organization's
 repositories on GitHub.
 
+The catalog's optional `mark.dark` names an existing repository file for dark
+mode; when present, the mark uses a `<picture>` with `mark.path` as the light
+fallback, retaining its width and `mark.alt` text. Both `<picture>` paths are
+URL-encoded; omitting `mark.dark` keeps the existing `<img>` output.
+
 ## Change the icon
 
 The icon is generated from the app icon entry in `DESIGN.md` by `app_icons.py`

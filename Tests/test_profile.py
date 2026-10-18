@@ -101,6 +101,56 @@ second
 </table>
 ''')
 
+    def test_dark_mark_uses_picture_with_light_fallback(self):
+        catalog = committed_catalog()
+        catalog["organization"] = "example"
+        catalog["mark"] = {
+            "path": "profile/light.png",
+            "dark": "profile/dark.png",
+            "alt": 'Example & "mark"',
+        }
+        self.assertIn('''<div align="center">
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/example/.github/master/profile/dark.png">
+<img src="https://raw.githubusercontent.com/example/.github/master/profile/light.png" width="128" alt="Example &amp; &quot;mark&quot;">
+</picture>
+<h1>''', renderer.render(catalog))
+
+    def test_picture_mark_paths_are_url_encoded(self):
+        catalog = committed_catalog()
+        catalog["organization"] = "example"
+        catalog["mark"] = {
+            "path": 'profile/light 光 #?%&"\',.png',
+            "dark": 'profile/dark 暗 #?%&"\',.png',
+            "alt": "Example mark",
+        }
+        rendered = renderer.render(catalog)
+        base = "https://raw.githubusercontent.com/example/.github/master/profile/"
+        self.assertIn(
+            f'<img src="{base}light%20%E5%85%89%20%23%3F%25%26%22%27%2C.png" '
+            'width="128" alt="Example mark">', rendered,
+        )
+        self.assertIn(
+            f'srcset="{base}dark%20%E6%9A%97%20%23%3F%25%26%22%27%2C.png"', rendered,
+        )
+
+    def test_mark_without_dark_preserves_image_output(self):
+        catalog = committed_catalog()
+        catalog["organization"] = "example"
+        catalog["mark"] = {
+            "path": 'profile/light 光 #?%&"\',.png',
+            "alt": "Example mark",
+        }
+        rendered = renderer.render(catalog)
+        self.assertIn(
+            '<div align="center">\n'
+            '<img src="https://raw.githubusercontent.com/example/.github/master/'
+            'profile/light 光 #?%&amp;&quot;&#x27;,.png" width="128" alt="Example mark">\n<h1>',
+            rendered,
+        )
+        self.assertNotIn("<picture>", rendered)
+        self.assertNotIn("<source", rendered)
+
     def test_html_contexts_escape_catalog_text(self):
         raw = '<tag> & "quote" \'single\''
         escaped = '&lt;tag&gt; &amp; &quot;quote&quot; &#x27;single&#x27;'
@@ -113,6 +163,7 @@ second
             return raw
 
         catalog = replace_text(committed_catalog())
+        catalog["mark"].pop("dark", None)
         catalog["quickstart"]["commands"] = ["skill list"]
         rendered = renderer.render(catalog)
         self.assertNotIn(raw, rendered)
@@ -283,13 +334,31 @@ class CatalogValidationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "duplicate repository name"):
             checks.validate_catalog(catalog)
 
-    def test_mark_requires_existing_repository_file(self):
-        for path in ("profile/missing.png", "profile", "../outside.png", str(ROOT / "README.md")):
-            with self.subTest(path=path):
+    def test_dark_mark_is_optional_and_accepts_existing_repository_file(self):
+        catalog = committed_catalog()
+        catalog["mark"].pop("dark", None)
+        checks.validate_catalog(catalog)
+        catalog["mark"]["dark"] = catalog["mark"]["path"]
+        checks.validate_catalog(catalog)
+
+    def test_dark_mark_requires_nonempty_string(self):
+        for value in (None, "", "  ", [], {}, 42, False):
+            with self.subTest(value=value):
                 catalog = committed_catalog()
-                catalog["mark"]["path"] = path
-                with self.assertRaisesRegex(ValueError, "mark.path"):
+                catalog["mark"]["dark"] = value
+                with self.assertRaisesRegex(ValueError, r"mark\.dark must be a non-empty string"):
                     checks.validate_catalog(catalog)
+
+    def test_mark_requires_existing_repository_file(self):
+        for key in ("path", "dark"):
+            for path in ("profile/missing.png", "profile", "../outside.png", str(ROOT / "README.md")):
+                with self.subTest(key=key, path=path):
+                    catalog = committed_catalog()
+                    catalog["mark"][key] = path
+                    with self.assertRaisesRegex(
+                        ValueError, rf"mark\.{key} must name an existing file inside the repository"
+                    ):
+                        checks.validate_catalog(catalog)
 
 
 class MembershipTests(unittest.TestCase):
