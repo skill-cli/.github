@@ -1,35 +1,139 @@
 {
   "fill": {
-    "automatic-gradient": "srgb:0.00000,0.47843,0.42745,1.00000"
+    "automatic-gradient": "srgb:1.00000,1.00000,1.00000,1.00000"
   },
   "groups": [
     {
-      "name": "Star",
+      "name": "Ghost",
+      "blend-mode": "plus-lighter",
       "shadow": {
-        "kind": "neutral",
+        "kind": "layer-color",
         "opacity": 0.5
+      },
+      "translucency": {
+        "enabled": false,
+        "value": 0
+      },
+      "refractivity": {
+        "enabled": true,
+        "strength": 0.2,
+        "depth": 0.1
       },
       "layers": [
         {
-          "image-name": "02-01.svg",
-          "name": "Star"
+          "image-name": "04-01.svg",
+          "name": "Ghost",
+          "fill-specializations": [
+            {
+              "value": {
+                "automatic-gradient": "srgb:1.00000,1.00000,1.00000,1.00000"
+              }
+            },
+            {
+              "appearance": "dark",
+              "value": {
+                "solid": "srgb:1.00000,1.00000,1.00000,1.00000"
+              }
+            }
+          ]
         }
       ]
     },
     {
-      "name": "Glint",
+      "name": "Shell",
       "shadow": {
-        "kind": "neutral",
+        "kind": "layer-color",
         "opacity": 0.5
       },
       "translucency": {
         "enabled": true,
-        "value": 0.2
+        "value": 0.55
+      },
+      "blur-material": 0.55,
+      "refractivity": {
+        "enabled": true,
+        "strength": 0.8,
+        "depth": 0.14
       },
       "layers": [
         {
+          "image-name": "03-01.svg",
+          "name": "Shell",
+          "fill": {
+            "automatic-gradient": "srgb:0.10196,0.12157,0.36078,1.00000"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bloom",
+      "blend-mode": "plus-lighter",
+      "specular": false,
+      "shadow": {
+        "kind": "none",
+        "opacity": 0
+      },
+      "translucency": {
+        "enabled": false,
+        "value": 0
+      },
+      "layers": [
+        {
+          "image-name": "02-03.svg",
+          "name": "Bloom core",
+          "fill": {
+            "solid": "srgb:1.00000,1.00000,1.00000,1.00000"
+          },
+          "opacity": 0.75
+        },
+        {
+          "image-name": "02-02.svg",
+          "name": "Bloom inner",
+          "fill": {
+            "solid": "srgb:1.00000,1.00000,1.00000,1.00000"
+          },
+          "opacity": 0.65
+        },
+        {
+          "image-name": "02-01.svg",
+          "name": "Bloom outer",
+          "fill": {
+            "solid": "srgb:1.00000,1.00000,1.00000,1.00000"
+          },
+          "opacity": 0.32
+        }
+      ]
+    },
+    {
+      "name": "Spirit",
+      "shadow": {
+        "kind": "layer-color",
+        "opacity": 0.5
+      },
+      "translucency": {
+        "enabled": true,
+        "value": 0.4
+      },
+      "refractivity": {
+        "enabled": true,
+        "strength": 0.4,
+        "depth": 0.16
+      },
+      "layers": [
+        {
+          "image-name": "01-02.svg",
+          "name": "Spirit B",
+          "fill": {
+            "automatic-gradient": "srgb:1.00000,0.47843,0.83922,1.00000"
+          },
+          "opacity": 0.85
+        },
+        {
           "image-name": "01-01.svg",
-          "name": "Glint"
+          "name": "Spirit A",
+          "fill": {
+            "automatic-gradient": "srgb:0.70980,0.47843,1.00000,1.00000"
+          }
         }
       ]
     }
@@ -39,5 +143,8 @@
       "watchOS"
     ],
     "squares": "shared"
-  }
+  },
+  "features": [
+    "refractivity"
+  ]
 }
