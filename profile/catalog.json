@@ -6,7 +6,8 @@
     "description": "Install, restore and watch agent skills for Codex, Claude Code, Cursor, Gemini CLI and OpenCode."
   },
   "mark": {
-    "path": "profile/assets/icon.png",
+    "path": "profile/assets/icon-dark.png",
+    "dark": "profile/assets/icon.png",
     "alt": "skill-cli icon"
   },
   "navigation": [
