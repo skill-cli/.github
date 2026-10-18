@@ -4,7 +4,7 @@
   },
   "groups": [
     {
-      "name": "Spark",
+      "name": "Star",
       "shadow": {
         "kind": "neutral",
         "opacity": 0.5
@@ -12,24 +12,24 @@
       "layers": [
         {
           "image-name": "02-01.svg",
-          "name": "Spark"
+          "name": "Star"
         }
       ]
     },
     {
-      "name": "Medal",
+      "name": "Glint",
       "shadow": {
         "kind": "neutral",
         "opacity": 0.5
       },
       "translucency": {
         "enabled": true,
-        "value": 0.5
+        "value": 0.2
       },
       "layers": [
         {
           "image-name": "01-01.svg",
-          "name": "Medal"
+          "name": "Glint"
         }
       ]
     }
