@@ -1,6 +1,6 @@
 {
   "fill": {
-    "automatic-gradient": "srgb:0.05490,0.48627,0.45490,1.00000"
+    "automatic-gradient": "srgb:0.00000,0.47843,0.42745,1.00000"
   },
   "groups": [
     {
@@ -17,15 +17,19 @@
       ]
     },
     {
-      "name": "Prompt",
+      "name": "Medal",
       "shadow": {
         "kind": "neutral",
         "opacity": 0.5
       },
+      "translucency": {
+        "enabled": true,
+        "value": 0.5
+      },
       "layers": [
         {
           "image-name": "01-01.svg",
-          "name": "Prompt"
+          "name": "Medal"
         }
       ]
     }
