@@ -5,8 +5,8 @@ skill-cli is maintainer-led. The maintainer is
 
 ## Project Scope
 
-The organization develops `skill`, a package manager for agent skills, and
-maintains its Homebrew distribution tap.
+The organization develops `skill`, which installs and updates agent skills,
+resolved to exact versions, and maintains its Homebrew distribution tap.
 
 ## Maintainer Responsibilities
 
