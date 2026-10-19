@@ -46,8 +46,9 @@ def load_declaration(catalog, root=ROOT):
         for group in catalog["groups"] for member in group["repositories"]
     }
     members = value.get("repositories")
-    if not isinstance(members, dict) or set(members) != expected:
-        raise ValueError("declared members must match the catalog plus .github")
+    optional = {catalog["organization"]["login"] + "/.github-private"}
+    if not isinstance(members, dict) or not expected <= set(members) <= expected | optional:
+        raise ValueError("declared members must match the catalog plus .github and an optional .github-private")
     for name, member in members.items():
         if not isinstance(member, dict) or set(member) != {"required_checks", "release_tag_patterns"}:
             raise ValueError(f"{name}: declare only required_checks and release_tag_patterns")

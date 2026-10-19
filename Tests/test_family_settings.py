@@ -41,6 +41,17 @@ class DeclarationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "match the catalog"):
             settings.load_declaration(catalog(), self.root)
 
+    def test_member_profile_is_optional_and_no_other_extra_member_is(self):
+        self.assertIn("skill-cli/.github-private", self.declaration["repositories"])
+        del self.declaration["repositories"]["skill-cli/.github-private"]
+        self.write_declaration()
+        settings.load_declaration(catalog(), self.root)
+        self.declaration["repositories"]["skill-cli/other"] = {
+            "required_checks": ["policy / policy"], "release_tag_patterns": []}
+        self.write_declaration()
+        with self.assertRaisesRegex(ValueError, "match the catalog"):
+            settings.load_declaration(catalog(), self.root)
+
     def test_floating_or_mismatched_pins_fail_offline(self):
         for revision in ("master", "a" * 40):
             with self.subTest(revision=revision):
