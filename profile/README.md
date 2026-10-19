@@ -2,7 +2,7 @@
 
 <h1 align="center">Install and update agent skills, resolved to exact versions.</h1>
 
-<p align="center">Works with Codex, Claude Code, Cursor, Gemini CLI and OpenCode. Upstream changes are previewed before you apply them.</p>
+<p align="center">The skills edition of agents: works with Codex, Claude Code, Cursor, Gemini CLI and OpenCode. Upstream changes are previewed before you apply them.</p>
 
 <p align="center"><a href="https://github.com/skill-cli/cli/blob/master/Documentation/Reference/CLI.md">Documentation</a> · <a href="https://github.com/skill-cli/.github/blob/master/CONTRIBUTING.md">Contributing</a> · <a href="https://github.com/skill-cli/.github/blob/master/SECURITY.md">Security</a> · <a href="https://github.com/skill-cli/.github/blob/master/SUPPORT.md">Support</a></p>
 
@@ -10,7 +10,7 @@
 
 ```sh
 brew install skill-cli/tap/skill-cli
-skill add owner/repo --skill name
+skill add owner/repo name
 skill list
 ```
 
