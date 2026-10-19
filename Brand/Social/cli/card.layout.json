@@ -10,7 +10,8 @@
   "title_size": 72,
   "title_min": 40,
   "about_lines": [
-    "A package manager for agent skills."
+    "Install and update agent skills, resolved to",
+    "exact versions."
   ],
   "about_size": 32,
   "inputs": {

@@ -1,9 +1,9 @@
 # Maintenance
 
-The agents family [MAINTENANCE](https://github.com/agents-tools/.github/blob/6e3ca28f4b96f9de51bbe629048ba6ab71dc6e97/MAINTENANCE.md)
+The agents family [MAINTENANCE](https://github.com/agents-tools/.github/blob/d90ea35e187b27bd258ebe469b3aa3311f3f2b02/MAINTENANCE.md)
 applies to every skill-cli repository. It owns change flow, signing, settings,
 review, dependencies and workflow adoption. The
-[workflow integration guide](https://github.com/agents-tools/.github/blob/6e3ca28f4b96f9de51bbe629048ba6ab71dc6e97/Documentation/Reference/WorkflowIntegration.md)
+[workflow integration guide](https://github.com/agents-tools/.github/blob/d90ea35e187b27bd258ebe469b3aa3311f3f2b02/Documentation/Reference/WorkflowIntegration.md)
 owns the reusable workflow interfaces and activation checks.
 [VERSIONING.md](VERSIONING.md) records skill-cli's release values;
 [DESIGN.md](DESIGN.md) owns its identity.
@@ -15,14 +15,14 @@ release tag protection patterns from the family standard. Shared settings and
 repository metadata come from that standard; the organization description
 comes from `profile/catalog.json`'s `promise.description`.
 
-The reviewed automation revision is `6e3ca28f4b96f9de51bbe629048ba6ab71dc6e97`.
+The reviewed automation revision is `d90ea35e187b27bd258ebe469b3aa3311f3f2b02`.
 The policy caller and read-only settings checker use this same revision.
 
 <!-- settings-declaration -->
 ```json
 {
   "schema": 1,
-  "standard_revision": "6e3ca28f4b96f9de51bbe629048ba6ab71dc6e97",
+  "standard_revision": "d90ea35e187b27bd258ebe469b3aa3311f3f2b02",
   "repositories": {
     "skill-cli/.github": {
       "required_checks": [
@@ -77,6 +77,6 @@ Legacy release tag exceptions are listed in [VERSIONING.md](VERSIONING.md#legacy
 
 **Deferred: Codex code review.** skill-cli organization connection, repository
 selection and automatic review verification remain deferred under the
-[family advisory-review declaration](https://github.com/agents-tools/.github/blob/6e3ca28f4b96f9de51bbe629048ba6ab71dc6e97/MAINTENANCE.md#advisory-review).
+[family advisory-review declaration](https://github.com/agents-tools/.github/blob/d90ea35e187b27bd258ebe469b3aa3311f3f2b02/MAINTENANCE.md#advisory-review).
 Existing review receipts in `skill-cli/cli` do not establish organization-wide
 activation.

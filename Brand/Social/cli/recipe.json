@@ -1,7 +1,7 @@
 {
   "owner": "skill-cli",
   "title": "skill",
-  "about": "A package manager for agent skills.",
+  "about": "Install and update agent skills, resolved to exact versions.",
   "icon": "../../../profile/assets/icon-dark.png",
   "font_title": "../../Fonts/GoogleSansCodeProportional-Bold.ttf",
   "font_body": "../../Fonts/GoogleSansCodeProportional-Regular.ttf",
