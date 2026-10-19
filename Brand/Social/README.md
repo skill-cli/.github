@@ -15,19 +15,20 @@ Colors and fonts come from [DESIGN.md](../../DESIGN.md); after changing it,
 resolve the tokens and update each recipe's `design_sha256` before rendering.
 
 Run from the repository root with `rsvg-convert` on PATH. Install the
-`github-repo-steward` renderer dependencies in the ignored producer directory:
+[github-readme-design](https://github.com/showxu/skills/tree/master/skills/github-readme-design)
+renderer dependencies in the ignored producer directory:
 
 ```sh
-STEWARD="$HOME/.agents/skills/github-repo-steward/scripts"
+README_DESIGN="$HOME/.agents/skills/github-readme-design/scripts"
 python3 -m venv .build/social-cards/venv
-.build/social-cards/venv/bin/python -m pip install -r "$STEWARD/requirements.txt" fonttools==4.67.0
+.build/social-cards/venv/bin/python -m pip install -r "$README_DESIGN/requirements.txt" fonttools==4.67.0
 ```
 
 Regenerate both cards and their layout receipts:
 
 ```sh
 for repository in cli homebrew-tap; do
-  .build/social-cards/venv/bin/python -B "$STEWARD/render_social.py" \
+  .build/social-cards/venv/bin/python -B "$README_DESIGN/render_social.py" \
     --spec "Brand/Social/$repository/recipe.json" \
     --output "Brand/Social/$repository/card.svg" || exit
   rsvg-convert -w 1280 -h 640 "Brand/Social/$repository/card.svg" \
@@ -39,7 +40,7 @@ Check the committed SVGs and layout receipts without writing:
 
 ```sh
 for repository in cli homebrew-tap; do
-  .build/social-cards/venv/bin/python -B "$STEWARD/render_social.py" \
+  .build/social-cards/venv/bin/python -B "$README_DESIGN/render_social.py" \
     --spec "Brand/Social/$repository/recipe.json" \
     --output "Brand/Social/$repository/card.svg" --check || exit
 done

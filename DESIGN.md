@@ -59,7 +59,7 @@ reader's monospace font.
 | `about` | The repository's About sentence, which is also its README tagline, complete and unchanged |
 | `icon` | The skill mark in its dark appearance, `profile/assets/icon-dark.png` (512 px PNG), which keeps its edge on the light canvas |
 
-Cards are rendered by `github-repo-steward`'s `render_social.py`, which embeds
+Cards are rendered by `github-readme-design`'s `render_social.py`, which embeds
 raster icons byte for byte. Sources and exports live in `Brand/Social/`.
 
 ### Terminal
