@@ -54,7 +54,7 @@ for conformance, 1 for drift/local failure and 2 for unknown observations.
 Offline and public modes do not establish settings conformance.
 
 Follow the family's
-[workflow integration guide](https://github.com/agents-tools/.github/blob/master/Documentation/Reference/WorkflowIntegration.md)
+[workflow integration guide](https://github.com/agents-tools/.github/blob/301c132794cbee950bfca6ba83987975d1ea6917/Documentation/Reference/WorkflowIntegration.md)
 when updating pins or activating protection. Update `standard_revision` and
 the policy caller together. Both workflows run on branch pushes so adoption
 can be validated before opening a pull request; their contexts are
