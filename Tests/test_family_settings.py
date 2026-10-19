@@ -107,7 +107,7 @@ class SharedCheckerTests(unittest.TestCase):
         self.assertEqual(set(selected["repositories"]), set(self.adoption["repositories"]))
         self.checker.api.assert_called_once_with("orgs/skill-cli")
         self.checker.compare.assert_called_once_with(
-            "skill-cli.organization", {"description": catalog()["promise"]["description"]}, observed
+            "skill-cli.organization", {"description": catalog()["description"]}, observed
         )
 
     def test_unknown_organization_does_not_hide_member_drift(self):

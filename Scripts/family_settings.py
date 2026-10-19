@@ -41,8 +41,8 @@ def load_declaration(catalog, root=ROOT):
     revision = value.get("standard_revision")
     if not isinstance(revision, str) or not re.fullmatch(r"[0-9a-f]{40}", revision):
         raise ValueError("standard_revision must be a full commit SHA")
-    expected = {catalog["organization"] + "/.github"} | {
-        catalog["organization"] + "/" + member["name"]
+    expected = {catalog["organization"]["login"] + "/.github"} | {
+        catalog["organization"]["login"] + "/" + member["name"]
         for group in catalog["groups"] for member in group["repositories"]
     }
     members = value.get("repositories")
@@ -103,10 +103,10 @@ def check_online(adoption, catalog):
     checker, standard = load_standard(adoption["standard_revision"])
     declaration = select_members(adoption, standard, checker)
     findings = checker.check_online(declaration)
-    organization = catalog["organization"]
+    organization = catalog["organization"]["login"]
     try:
         findings += checker.compare(
-            organization + ".organization", {"description": catalog["promise"]["description"]},
+            organization + ".organization", {"description": catalog["description"]},
             checker.api("orgs/" + organization),
         )
     except checker.Unavailable as error:
