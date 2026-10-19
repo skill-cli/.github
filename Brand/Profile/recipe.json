@@ -1,0 +1,9 @@
+{
+  "design_source": "../../DESIGN.md",
+  "design_sha256": "b1bdf70077c5b87ebdebee28377a8cc8089e2fc6059cf1bbd4fef6ab09e12e62",
+  "public_header_icon_size": 128,
+  "member_header_icon_size": 64,
+  "public_row_icon_size": 40,
+  "member_row_icon_size": 24,
+  "badge_style": "flat"
+}

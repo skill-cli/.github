@@ -14,14 +14,15 @@ and development notes, including the CLI's repository-specific instructions.
 
 | Path | Contents |
 | --- | --- |
-| `profile/catalog.json` | Promise, links, quick start and repository groups of the organization profile |
+| `profile/catalog.json` | Promise, account description, links, quick start, repository groups, outcomes and icons of the organization profile |
+| `Brand/Profile/recipe.json` | Profile tokens resolved from DESIGN.md |
 | `profile/README.md` | Organization profile, generated from the catalog |
 | `profile/assets/` | Organization avatar and profile mark |
 | `DESIGN.md` | Colors, presentation tokens and the app icon entry |
 | `Brand/Icon/` | Icon layer artwork |
 | `Brand/Exports/skill-cli/` | Icon Composer document generated from the app icon entry |
 | [Brand/Social/](Brand/Social/README.md) | Repository social card recipes, outlined SVGs, PNGs and layout receipts |
-| `Scripts/` | Profile generator and repository checks |
+| `Scripts/` | Profile generator, vendored renderer and repository checks |
 | `MAINTENANCE.md` | Family adoption, member contexts, legacy commits and advisory review |
 | `VERSIONING.md` | Family versioning reference, member release values and legacy tags |
 | `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, `SECURITY.md`, `SUPPORT.md` | Organization community defaults |
@@ -74,10 +75,13 @@ The catalog must list every public, non-archived repository of the
 organization except `.github`. The check compares it with the organization's
 repositories on GitHub.
 
-The catalog's optional `mark.dark` names an existing repository file for dark
-mode; when present, the mark uses a `<picture>` with `mark.path` as the light
-fallback, retaining its width and `mark.alt` text. Both `<picture>` paths are
-URL-encoded; omitting `mark.dark` keeps the existing `<img>` output.
+`Scripts/render-profile.py` runs the [vendored](Scripts/vendor/README.md)
+shared renderer from `github-readme-design`, which owns the catalog contract
+and layout: each repository row has a plain-text `outcome` and the `icon`
+shown in its README header, the mark and icons may declare light and dark
+images, and optional fields cover the quick start, the account `description`
+and the maintainer line. The member dashboard in the private `.github-private`
+repository renders from this catalog at a pinned revision.
 
 ## Change the icon
 

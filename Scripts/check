@@ -20,64 +20,13 @@ import family_settings
 
 
 def validate_catalog(catalog, root=ROOT):
-    def object_value(value, path):
-        if not isinstance(value, dict):
-            raise ValueError(f"{path} must be an object")
-        return value
-
-    def text_value(value, path):
-        if not isinstance(value, str) or not value.strip():
-            raise ValueError(f"{path} must be a non-empty string")
-        return value
-
-    def list_value(value, path):
-        if not isinstance(value, list) or not value:
-            raise ValueError(f"{path} must be a non-empty list")
-        return value
-
-    object_value(catalog, "catalog")
-    text_value(catalog.get("organization"), "organization")
-    promise = object_value(catalog.get("promise"), "promise")
-    for key in ("heading", "secondary", "description"):
-        text_value(promise.get(key), f"promise.{key}")
-    mark = object_value(catalog.get("mark"), "mark")
-    for key in ("path", "dark"):
-        if key == "dark" and key not in mark:
-            continue
-        path = Path(text_value(mark.get(key), f"mark.{key}"))
-        if path.is_absolute() or ".." in path.parts or not (root / path).is_file():
-            raise ValueError(f"mark.{key} must name an existing file inside the repository")
-    text_value(mark.get("alt"), "mark.alt")
-    for index, link in enumerate(list_value(catalog.get("navigation"), "navigation")):
-        prefix = f"navigation[{index}]"
-        object_value(link, prefix)
-        text_value(link.get("title"), f"{prefix}.title")
-        url = text_value(link.get("url"), f"{prefix}.url")
-        parsed = urlsplit(url)
-        if not url.startswith("https://") or not parsed.hostname:
-            raise ValueError(f"{prefix}.url must be an https:// URL with a host")
-    quickstart = object_value(catalog.get("quickstart"), "quickstart")
-    text_value(quickstart.get("title"), "quickstart.title")
-    for index, command in enumerate(list_value(quickstart.get("commands"), "quickstart.commands")):
-        text_value(command, f"quickstart.commands[{index}]")
-        if "\n" in command or "\r" in command:
-            raise ValueError(f"quickstart.commands[{index}] must be a single line")
-        if "```" in command:
-            raise ValueError(f"quickstart.commands[{index}] must not contain three consecutive backticks")
-    names = set()
-    for index, group in enumerate(list_value(catalog.get("groups"), "groups")):
-        prefix = f"groups[{index}]"
-        object_value(group, prefix)
-        text_value(group.get("title"), f"{prefix}.title")
-        repositories = list_value(group.get("repositories"), f"{prefix}.repositories")
-        for repo_index, repository in enumerate(repositories):
-            repo_prefix = f"{prefix}.repositories[{repo_index}]"
-            object_value(repository, repo_prefix)
-            name = text_value(repository.get("name"), f"{repo_prefix}.name")
-            text_value(repository.get("summary"), f"{repo_prefix}.summary")
-            if name.casefold() in names:
-                raise ValueError(f"duplicate repository name: {name}")
-            names.add(name.casefold())
+    """Validate with the vendored shared renderer, the catalog's schema owner."""
+    sys.path.insert(0, str(root / "Scripts/vendor"))
+    try:
+        import render_profile
+    finally:
+        sys.path.pop(0)
+    render_profile.validate_catalog(catalog)
 
 
 def fetch_repositories(organization, token=None, *, opener=urlopen):
@@ -156,7 +105,7 @@ def main(argv=None, *, root=ROOT):
         validate_catalog(candidate, root)
         catalog = candidate
         print("PASS catalog validation")
-    except (OSError, UnicodeError, ValueError) as error:
+    except (OSError, UnicodeError, ValueError, KeyError, TypeError) as error:
         print("FAIL catalog validation: " + " ".join(str(error).splitlines()))
         failed = True
 
@@ -187,7 +136,7 @@ def main(argv=None, *, root=ROOT):
         try:
             if catalog is None:
                 raise ValueError("cannot compare an invalid catalog")
-            repositories = fetch_repositories(catalog["organization"], os.environ.get("GITHUB_TOKEN"))
+            repositories = fetch_repositories(catalog["organization"]["login"], os.environ.get("GITHUB_TOKEN"))
             compare_membership(catalog, repositories)
             print("PASS repository membership")
         except (OSError, ValueError) as error:

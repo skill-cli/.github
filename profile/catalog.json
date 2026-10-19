@@ -1,33 +1,33 @@
 {
-  "organization": "skill-cli",
-  "promise": {
-    "heading": "Install and update agent skills, resolved to exact versions.",
-    "secondary": "Works with Codex, Claude Code, Cursor, Gemini CLI and OpenCode. Upstream changes are previewed before you apply them.",
-    "description": "Install and update the skills of Codex, Claude Code, Cursor, Gemini CLI and OpenCode, resolved to exact versions."
+  "organization": {
+    "login": "skill-cli",
+    "name": "skill-cli"
   },
+  "promise": "Install and update agent skills, resolved to exact versions.",
+  "secondary": "Works with Codex, Claude Code, Cursor, Gemini CLI and OpenCode. Upstream changes are previewed before you apply them.",
+  "description": "Install and update the skills of Codex, Claude Code, Cursor, Gemini CLI and OpenCode, resolved to exact versions.",
   "mark": {
-    "path": "profile/assets/icon-dark.png",
-    "dark": "profile/assets/icon.png",
-    "alt": "skill-cli icon"
+    "light": "https://raw.githubusercontent.com/skill-cli/.github/HEAD/profile/assets/icon-dark.png",
+    "dark": "https://raw.githubusercontent.com/skill-cli/.github/HEAD/profile/assets/icon.png"
   },
-  "navigation": [
-    {
-      "title": "Documentation",
+  "navigation": {
+    "documentation": {
+      "label": "Documentation",
       "url": "https://github.com/skill-cli/cli/blob/master/Documentation/Reference/CLI.md"
     },
-    {
-      "title": "Contributing",
+    "contributing": {
+      "label": "Contributing",
       "url": "https://github.com/skill-cli/.github/blob/master/CONTRIBUTING.md"
     },
-    {
-      "title": "Security",
+    "security": {
+      "label": "Security",
       "url": "https://github.com/skill-cli/.github/blob/master/SECURITY.md"
     },
-    {
-      "title": "Support",
+    "support": {
+      "label": "Support",
       "url": "https://github.com/skill-cli/.github/blob/master/SUPPORT.md"
     }
-  ],
+  },
   "quickstart": {
     "title": "Get started",
     "commands": [
@@ -42,7 +42,11 @@
       "repositories": [
         {
           "name": "cli",
-          "summary": "The `skill` command: add skills from local paths, Git repositories or well-known indexes, pin them, restore installs and review watched sources."
+          "outcome": "The skill command: add skills from local paths, Git repositories or well-known indexes, pin them, restore installs and review watched sources.",
+          "icon": {
+            "light": "https://raw.githubusercontent.com/skill-cli/cli/HEAD/Documentation/Assets/Logo-dark.png",
+            "dark": "https://raw.githubusercontent.com/skill-cli/cli/HEAD/Documentation/Assets/Logo.png"
+          }
         }
       ]
     },
@@ -51,9 +55,17 @@
       "repositories": [
         {
           "name": "homebrew-tap",
-          "summary": "Homebrew formula that installs `skill`."
+          "outcome": "Install skill with Homebrew.",
+          "icon": {
+            "light": "https://raw.githubusercontent.com/skill-cli/.github/HEAD/profile/assets/icon-dark.png",
+            "dark": "https://raw.githubusercontent.com/skill-cli/.github/HEAD/profile/assets/icon.png"
+          }
         }
       ]
     }
-  ]
+  ],
+  "maintainer": {
+    "label": "Maintained by @showxu",
+    "url": "https://github.com/showxu"
+  }
 }

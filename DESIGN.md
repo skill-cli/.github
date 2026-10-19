@@ -62,6 +62,27 @@ reader's monospace font.
 Cards are rendered by `github-readme-design`'s `render_social.py`, which embeds
 raster icons byte for byte. Sources and exports live in `Brand/Social/`.
 
+### Profile
+
+The public profile (`profile/README.md`) and the member dashboard in the
+private `.github-private` repository are rendered by `github-readme-design`'s
+`render_profile.py` from `profile/catalog.json`. `Brand/Profile/recipe.json`
+resolves these tokens and records this file's digest.
+
+| Token | Value | Use |
+| --- | --- | --- |
+| `public_header_icon_size` | 128 px | Umbrella mark on the public profile |
+| `member_header_icon_size` | 64 px | Umbrella mark on the member dashboard |
+| `public_row_icon_size` | 40 px | Repository icons on the public profile |
+| `member_row_icon_size` | 24 px | Repository icons on the member dashboard |
+| `badge_style` | `flat` | CI and release badges on the member dashboard |
+
+| Field | Source |
+| --- | --- |
+| Mark and row icons | Light mode uses the dark appearance and dark mode the default appearance, as in README headers |
+| Row icon | The logo in that repository's README header; the tap uses the skill mark |
+| Outcome | One plain-text sentence per repository in the catalog |
+
 ### Terminal
 
 | Role | Light | Dark |
