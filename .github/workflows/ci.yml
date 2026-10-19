@@ -2,18 +2,30 @@ name: CI
 
 on:
   push:
-    branches: [master]
+    branches: ['**']
   pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
       - run: python3 -m unittest discover -s Tests
-      - run: python3 Scripts/check
+      - run: python3 Scripts/check --public
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: git diff --check

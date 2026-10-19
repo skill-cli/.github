@@ -5,9 +5,9 @@
 <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/skill-cli/.github/master/profile/assets/icon.png">
 <img src="https://raw.githubusercontent.com/skill-cli/.github/master/profile/assets/icon-dark.png" width="128" alt="skill-cli icon">
 </picture>
-<h1>Install, restore and watch agent skills from the command line.</h1>
+<h1>A package manager for agent skills.</h1>
 <p>One native CLI pins where each skill comes from and installs it for Codex, Claude Code, Cursor, Gemini CLI and OpenCode.</p>
-<p><a href="https://github.com/skill-cli/cli/blob/master/Documentation/Reference/CLI.md">Documentation</a> · <a href="https://github.com/skill-cli/cli/blob/master/CONTRIBUTING.md">Contributing</a> · <a href="https://github.com/skill-cli/cli/blob/master/SECURITY.md">Security</a> · <a href="https://github.com/skill-cli/cli/blob/master/SUPPORT.md">Support</a></p>
+<p><a href="https://github.com/skill-cli/cli/blob/master/Documentation/Reference/CLI.md">Documentation</a> · <a href="https://github.com/skill-cli/.github/blob/master/CONTRIBUTING.md">Contributing</a> · <a href="https://github.com/skill-cli/.github/blob/master/SECURITY.md">Security</a> · <a href="https://github.com/skill-cli/.github/blob/master/SUPPORT.md">Support</a></p>
 </div>
 
 ### Get started
