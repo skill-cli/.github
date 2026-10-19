@@ -75,6 +75,15 @@ support in showxu/skills (raster icons are embedded byte for byte).
 | `output` | `#3F3D5C` | `#C8C7E6` |
 | `dim` | `#67657F` | `#8785AE` |
 
+| Size | Value |
+| --- | --- |
+| `font-size` | 14 px |
+| `line-height` | 21 px |
+| `padding` | 20 px |
+| `radius` | 10 px |
+| `title-height` | 34 px |
+| `min-width` | 560 px |
+
 These are the agents family values: the prompt carries the icon's indigo and
 the dark surface is the shell's night blue. READMEs select the light or dark recording with `<picture>` and
 `prefers-color-scheme`.
