@@ -1,0 +1,24 @@
+{
+  "canvas": [
+    1280,
+    640
+  ],
+  "title": "skill",
+  "title_lines": [
+    "skill"
+  ],
+  "title_size": 72,
+  "title_min": 40,
+  "about_lines": [
+    "A package manager for agent skills."
+  ],
+  "about_size": 32,
+  "inputs": {
+    "icon": "b412e0ea3ce90b8742bed9aec2885f5ff48c39ffd08f01ee24f954daaafbf395",
+    "font_title": "2847d27ddecb0ed4bbbc11b416862f7237107b7617a26071f5891f92d5799575",
+    "font_body": "b0c68614b217430da2151422ebba7228204b71b9d2ae44ee3df5d1875652a439",
+    "font_license": "ff8f4fbc4f1a71c7d4c6481c48dc2b21c43f8dc15872536667fee45c15d20928",
+    "font_owner": "21d81560cc28969403960bf1d8387482ee58159735f54c8621c36cd5ffe0c05d"
+  },
+  "design_sha256": "1d74db8ce614b67921dc647d6544da7d2a7183fc4a8dcf69170f3dca26901e68"
+}

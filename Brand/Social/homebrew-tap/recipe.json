@@ -1,0 +1,15 @@
+{
+  "owner": "skill-cli",
+  "title": "homebrew-tap",
+  "about": "Install skill with Homebrew.",
+  "icon": "../../../profile/assets/icon-dark.png",
+  "font_title": "../../Fonts/GoogleSansCodeProportional-Bold.ttf",
+  "font_body": "../../Fonts/GoogleSansCodeProportional-Regular.ttf",
+  "font_owner": "../../Fonts/GoogleSansCodeProportional-Medium.ttf",
+  "font_license": "../../Fonts/OFL.txt",
+  "background": "#F5F4FF",
+  "ink": "#16143D",
+  "muted": "#4F4C7A",
+  "design_source": "../../../DESIGN.md",
+  "design_sha256": "1d74db8ce614b67921dc647d6544da7d2a7183fc4a8dcf69170f3dca26901e68"
+}
