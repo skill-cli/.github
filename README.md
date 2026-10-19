@@ -17,9 +17,10 @@ and development notes, including the CLI's repository-specific instructions.
 | `profile/catalog.json` | Promise, links, quick start and repository groups of the organization profile |
 | `profile/README.md` | Organization profile, generated from the catalog |
 | `profile/assets/` | Organization avatar and profile mark |
-| `DESIGN.md` | Colors and the app icon entry |
+| `DESIGN.md` | Colors, presentation tokens and the app icon entry |
 | `Brand/Icon/` | Icon layer artwork |
 | `Brand/Exports/skill-cli/` | Icon Composer document generated from the app icon entry |
+| [Brand/Social/](Brand/Social/README.md) | Repository social card recipes, outlined SVGs, PNGs and layout receipts |
 | `Scripts/` | Profile generator and repository checks |
 | `MAINTENANCE.md` | Family adoption, member contexts, legacy commits and advisory review |
 | `VERSIONING.md` | Family versioning reference, member release values and legacy tags |

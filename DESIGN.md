@@ -59,9 +59,8 @@ reader's monospace font.
 | `about` | The repository's About sentence, which is also its README tagline, complete and unchanged |
 | `icon` | The skill mark in its dark appearance, `profile/assets/icon-dark.png` (512 px PNG), which keeps its edge on the light canvas |
 
-The mark exists only as a rendered Liquid Glass PNG, so cards need a renderer
-that accepts raster icons; `github-repo-steward`'s `render_social.py` gains that
-support in showxu/skills (raster icons are embedded byte for byte).
+Cards are rendered by `github-repo-steward`'s `render_social.py`, which embeds
+raster icons byte for byte. Sources and exports live in `Brand/Social/`.
 
 ### Terminal
 
