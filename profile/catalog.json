@@ -4,7 +4,7 @@
     "name": "skill-cli"
   },
   "promise": "Install and update agent skills, resolved to exact versions.",
-  "secondary": "Works with Codex, Claude Code, Cursor, Gemini CLI and OpenCode. Upstream changes are previewed before you apply them.",
+  "secondary": "The skills edition of agents: works with Codex, Claude Code, Cursor, Gemini CLI and OpenCode. Upstream changes are previewed before you apply them.",
   "description": "Install and update the skills of Codex, Claude Code, Cursor, Gemini CLI and OpenCode, resolved to exact versions.",
   "mark": {
     "light": "https://raw.githubusercontent.com/skill-cli/.github/HEAD/profile/assets/icon-dark.png",
@@ -32,7 +32,7 @@
     "title": "Get started",
     "commands": [
       "brew install skill-cli/tap/skill-cli",
-      "skill add owner/repo --skill name",
+      "skill add owner/repo name",
       "skill list"
     ]
   },
