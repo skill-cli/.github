@@ -52,7 +52,16 @@ reader's monospace font.
 | `card-ink` | `#16143D` | Owner label and title |
 | `card-muted` | `#4F4C7A` | About sentence |
 
-Cards show the skill mark in its dark appearance, which keeps its edge on the light canvas.
+| Field | Source |
+| --- | --- |
+| `owner` | The organization login, `skill-cli` |
+| `title` | The repository's README title: `skill` for cli, `homebrew-tap` for the tap |
+| `about` | The repository's About sentence, which is also its README tagline, complete and unchanged |
+| `icon` | The skill mark in its dark appearance, `profile/assets/icon-dark.png` (512 px PNG), which keeps its edge on the light canvas |
+
+The mark exists only as a rendered Liquid Glass PNG, so cards need a renderer
+that accepts raster icons; `github-repo-steward`'s `render_social.py` gains that
+support in showxu/skills (raster icons are embedded byte for byte).
 
 ### Terminal
 
@@ -64,7 +73,7 @@ Cards show the skill mark in its dark appearance, which keeps its edge on the li
 | `prompt` | `#3B35D1` | `#8F8AFF` |
 | `command` | `#16143D` | `#F1F0FF` |
 | `output` | `#3F3D5C` | `#C8C7E6` |
-| `dim` | `#6F6D8B` | `#7C7AA3` |
+| `dim` | `#67657F` | `#8785AE` |
 
 These are the agents family values: the prompt carries the icon's indigo and
 the dark surface is the shell's night blue. READMEs select the light or dark recording with `<picture>` and
