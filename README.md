@@ -3,6 +3,13 @@
 Organization profile, brand and shared standards for
 [skill-cli](https://github.com/skill-cli).
 
+skill-cli adopts the agents family [maintenance](MAINTENANCE.md) and
+[versioning](VERSIONING.md) standards by reference. GitHub uses the community
+files and issue/pull-request templates here as defaults for organization
+repositories that lack their own. `GOVERNANCE.md` is linked guidance, not an
+inherited GitHub file. Members keep their own workflows, CODEOWNERS, licenses
+and development notes, including the CLI's repository-specific instructions.
+
 ## Contents
 
 | Path | Contents |
@@ -14,6 +21,44 @@ Organization profile, brand and shared standards for
 | `Brand/Icon/` | Icon layer artwork |
 | `Brand/Exports/skill-cli/` | Icon Composer document generated from the app icon entry |
 | `Scripts/` | Profile generator and repository checks |
+| `MAINTENANCE.md` | Family adoption, member contexts, legacy commits and advisory review |
+| `VERSIONING.md` | Family versioning reference, member release values and legacy tags |
+| `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, `SECURITY.md`, `SUPPORT.md` | Organization community defaults |
+| `GOVERNANCE.md` | Project scope and maintainer responsibilities |
+| `.github/ISSUE_TEMPLATE/`, `.github/pull_request_template.md` | Default issue and pull-request intake |
+| `.github/workflows/` | Pinned family policy caller and local validation |
+
+## Validate the standard
+
+```sh
+python3 -m unittest discover -s Tests
+python3 Scripts/check --offline
+python3 Scripts/check --public
+python3 Scripts/check
+```
+
+Offline checks validate the catalog, generated profile, member declaration and
+policy pin. CI uses `--public` to add public repository membership with its
+read-only workflow token. The default online mode requires an authenticated
+`gh` session with read access to settings for all three skill-cli members.
+
+The online check reads `Scripts/settings.py` and `MAINTENANCE.md` directly from
+the reviewed family revision in the adoption declaration. It reuses that
+unmodified checker, selects only skill-cli members, verifies their declared
+contexts/tag patterns, and compares merge settings, token defaults, full
+repository/inherited rulesets, private reporting, descriptions and topics.
+It also compares the live organization description with the catalog. All
+requests are GETs; no settings are applied. `DRIFT` prints expected and observed
+values; inaccessible endpoints or fields remain `UNKNOWN`. Exit codes are 0
+for conformance, 1 for drift/local failure and 2 for unknown observations.
+Offline and public modes do not establish settings conformance.
+
+Follow the family's
+[workflow integration guide](https://github.com/agents-tools/.github/blob/301c132794cbee950bfca6ba83987975d1ea6917/Documentation/Reference/WorkflowIntegration.md)
+when updating pins or activating protection. Update `standard_revision` and
+the policy caller together. Both workflows run on branch pushes so adoption
+can be validated before opening a pull request; their contexts are
+`policy / policy` and `check`.
 
 ## Change the profile
 

@@ -458,6 +458,11 @@ class MembershipTests(unittest.TestCase):
 
 
 class CheckCommandTests(unittest.TestCase):
+    def setUp(self):
+        patcher = mock.patch.object(checks.family_settings, "check_online", return_value=[])
+        self.settings = patcher.start()
+        self.addCleanup(patcher.stop)
+
     def run_checks(self, arguments, *, api_error=None, render_status=0, validation_error=None):
         output = io.StringIO()
         with contextlib.redirect_stdout(output), mock.patch.object(
@@ -477,16 +482,45 @@ class CheckCommandTests(unittest.TestCase):
     def test_success_prints_one_line_per_check_and_passes_token(self):
         status, lines, fetch, compare = self.run_checks([])
         self.assertEqual(status, 0)
-        self.assertEqual(lines, ["PASS catalog validation", "PASS generated profile", "PASS repository membership"])
+        self.assertEqual(lines, ["PASS catalog validation", "PASS generated profile", "PASS family adoption declaration", "PASS repository membership"])
         fetch.assert_called_once_with("skill-cli", "test-token")
         compare.assert_called_once()
 
-    def test_offline_skips_only_membership(self):
+    def test_offline_skips_all_network_checks(self):
         status, lines, fetch, compare = self.run_checks(["--offline"])
         self.assertEqual(status, 0)
-        self.assertEqual(lines, ["PASS catalog validation", "PASS generated profile", "SKIP repository membership (--offline)"])
+        self.assertEqual(lines, ["PASS catalog validation", "PASS generated profile", "PASS family adoption declaration", "SKIP repository membership (--offline)", "SKIP administrative settings (--offline)"])
         fetch.assert_not_called()
         compare.assert_not_called()
+        self.settings.assert_not_called()
+
+    def test_public_checks_membership_without_administrative_reads(self):
+        status, lines, fetch, _ = self.run_checks(["--public"])
+        self.assertEqual(status, 0)
+        fetch.assert_called_once()
+        self.settings.assert_not_called()
+        self.assertEqual(lines[-1], "SKIP administrative settings (--public)")
+
+    def test_settings_drift_and_unknown_have_distinct_statuses(self):
+        for findings, expected in ((["PASS settings"], 0), (["DRIFT settings"], 1),
+                                   (["DRIFT settings", "UNKNOWN settings"], 2)):
+            with self.subTest(findings=findings):
+                self.settings.return_value = findings
+                status, lines, _, _ = self.run_checks([])
+                self.assertEqual(status, expected)
+                self.assertEqual(lines[-len(findings):], findings)
+
+    def test_unavailable_standard_is_unknown(self):
+        self.settings.side_effect = checks.family_settings.Unavailable("unreachable")
+        status, lines, _, _ = self.run_checks([])
+        self.assertEqual(status, 2)
+        self.assertEqual(lines[-1], "UNKNOWN family standard: unreachable")
+
+    def test_invalid_family_values_fail(self):
+        self.settings.side_effect = ValueError("contexts differ")
+        status, lines, _, _ = self.run_checks([])
+        self.assertEqual(status, 1)
+        self.assertEqual(lines[-1], "FAIL administrative settings: contexts differ")
 
     def test_render_failure_does_not_prevent_membership_check(self):
         status, lines, fetch, _ = self.run_checks([], render_status=1)
@@ -499,7 +533,7 @@ class CheckCommandTests(unittest.TestCase):
             ["--offline"], render_status=1, validation_error=ValueError("invalid catalog")
         )
         self.assertEqual(status, 1)
-        self.assertEqual(len(lines), 3)
+        self.assertEqual(len(lines), 5)
         self.assertEqual(lines[0], "FAIL catalog validation: invalid catalog")
         self.assertTrue(lines[1].startswith("FAIL generated profile"))
         fetch.assert_not_called()
@@ -507,8 +541,8 @@ class CheckCommandTests(unittest.TestCase):
     def test_api_failure_returns_failure_and_clear_message(self):
         status, lines, _, _ = self.run_checks([], api_error=ValueError("could not read GitHub API: request or response failed"))
         self.assertEqual(status, 1)
-        self.assertEqual(len(lines), 3)
-        self.assertEqual(lines[2], "FAIL repository membership: could not read GitHub API: request or response failed")
+        self.assertEqual(len(lines), 4)
+        self.assertEqual(lines[3], "FAIL repository membership: could not read GitHub API: request or response failed")
 
     def run_with_opener(self, token, opener):
         fetch = checks.fetch_repositories
@@ -524,8 +558,8 @@ class CheckCommandTests(unittest.TestCase):
         self.assertEqual(status, 1)
         self.assertEqual(error.getvalue(), "")
         lines = output.getvalue().splitlines()
-        self.assertEqual(len(lines), 3)
-        return lines[2]
+        self.assertEqual(len(lines), 4)
+        return lines[3]
 
     def test_malformed_token_is_rejected_without_a_request_or_disclosure(self):
         for character in (" ", "\t", "\n", "\r", "\x00", "\x1f", "\x7f", "\x85", "\u00a0", "\u200b"):
