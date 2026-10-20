@@ -109,10 +109,12 @@ regenerate.
 
 This file follows Google's [DESIGN.md format](https://github.com/google-labs-code/design.md)
 (`version: alpha`). Every token lives in the front matter; the sections below
-explain intent and cite token names instead of values. Renderers read the
-tokens through the official `@google/design.md` parser, and CI rejects any
-lint error or warning. Change a token, then regenerate every output that
-reads it.
+explain intent and cite token names instead of values. CI lints this file
+with the official `@google/design.md` parser and rejects any error or warning.
+The terminal toolchain in `github-readme-design` reads the tokens through the
+same parser; the social preview and profile renderers read recipes that copy
+their values and record this file's digest. Change a token, update the
+recipes that copy it, then regenerate every output that reads it.
 
 ## Colors
 
@@ -136,10 +138,11 @@ App icon colors are defined by its entry in [Iconography](#iconography).
 
 ## Typography
 
-One family, Google Sans Code, carries every lettering role through its two
-axes: `MONO` 1 is the monospaced design for terminal sessions and code,
-`MONO` 0 the proportional design for titles, labels and body text. `wght`
-sets the weight of each role.
+One family, Google Sans Code, carries every lettering role. Its `MONO` axis
+switches between a monospaced and a proportional design and `wght` sets the
+weight; each typography token selects both. Terminal sessions and code are set
+monospaced so output keeps its column grid; titles, labels and body text are
+set proportional, which reads more compactly at display sizes.
 
 Rendered lettering, terminal sessions included, is converted to glyph outlines
 from `Brand/Fonts/GoogleSansCode[MONO,wght].ttf`, so every reader sees the same
@@ -168,7 +171,7 @@ commands.
 The public profile (`profile/README.md`) and the member dashboard in the
 private `.github-private` repository are rendered by `github-readme-design`'s
 `render_profile.py` from `profile/catalog.json`. `Brand/Profile/recipe.json`
-resolves these values and records this file's digest.
+copies these values and records this file's digest.
 
 | Name | Value | Use |
 | --- | --- | --- |
@@ -223,7 +226,9 @@ change, which renderers merge over the base.
 | `icon` | The skill mark in its dark appearance, `profile/assets/icon-dark.png` (512 px PNG), which keeps its edge on the light canvas |
 
 Cards are rendered by `github-readme-design`'s `render_social.py`, which embeds
-raster icons byte for byte. Sources and exports live in `Brand/Social/`.
+raster icons byte for byte. Each card recipe copies the `social-preview-*`
+colors and the faces of the `social-preview-*` typography, and records this
+file's digest. Sources and exports live in `Brand/Social/`.
 
 ## Do's and Don'ts
 

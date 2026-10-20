@@ -11,10 +11,11 @@ as that repository's GitHub social preview.
 
 Recipes use this repository's [dark icon](../../profile/assets/icon-dark.png)
 and [OFL fonts](../Fonts/OFL.txt), with lettering outlined on a 1280×640 canvas.
-Recipes resolve visual tokens from the front matter in [DESIGN.md](../../DESIGN.md).
+Recipes copy the card colors from the front matter in [DESIGN.md](../../DESIGN.md).
 After changing it, follow the [design procedure](../../README.md#change-the-design)
-to lint it with zero errors and zero warnings and update every recipe's
-`design_sha256` to the SHA-256 of the final file before rendering.
+to lint it with zero errors and zero warnings, copy changed values into the
+recipes and update every recipe's `design_sha256` to the SHA-256 of the final
+file before rendering.
 
 Run from the repository root with `rsvg-convert` on PATH. Install the
 [github-readme-design](https://github.com/showxu/skills/tree/master/skills/github-readme-design)

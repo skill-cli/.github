@@ -96,8 +96,10 @@ npx --yes @google/design.md@0.4.0 lint DESIGN.md
 Require zero errors and zero warnings. The lint command exits 0 when it reports
 only warnings, so check both counts; CI enforces both.
 
-Update `design_sha256` in `Brand/Profile/recipe.json` and every
-`Brand/Social/*/recipe.json` to the SHA-256 of the final `DESIGN.md`, then run
+The profile and social card recipes copy their values from `DESIGN.md`.
+Copy every changed value into `Brand/Profile/recipe.json` and each
+`Brand/Social/*/recipe.json` that uses it, set each recipe's `design_sha256`
+to the SHA-256 of the final `DESIGN.md`, then run
 `python3 Scripts/render-profile.py` and regenerate the
 [social cards](Brand/Social/README.md). Follow the icon procedure below for a
 changed entry or artwork. Commit `DESIGN.md`, recipes, sources and outputs

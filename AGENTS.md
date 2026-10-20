@@ -12,9 +12,10 @@ Read `README.md` first.
   sentence, from that repository's current behavior.
 - `DESIGN.md` owns the organization's visual tokens (Google DESIGN.md format,
   tokens in the front matter) and its icon entry. Read it before visual or asset
-  work. After changing it, lint it (zero errors and zero warnings), update
-  every recipe's `design_sha256`, and regenerate its listed outputs as
-  described in `README.md`. Regenerate affected outputs after `Brand/Icon/`
+  work. After changing it, lint it (zero errors and zero warnings), copy
+  changed values into the recipes that use them, update every recipe's
+  `design_sha256`, and regenerate its listed outputs as described in
+  `README.md`. Regenerate affected outputs after `Brand/Icon/`
   artwork changes; commit sources and outputs together.
 - Run `python3 Scripts/check` and `python3 -m unittest discover -s Tests`
   before handing off a change.
