@@ -1,6 +1,6 @@
 # Versioning
 
-The agents family [VERSIONING](https://github.com/agents-tools/.github/blob/aaddcb297cecb9e9273c807214e547d763cd85b4/VERSIONING.md)
+The agents family [VERSIONING](https://github.com/agents-tools/.github/blob/1dd5eae4c47bb6063b951066989aa6c46703b946/VERSIONING.md)
 applies to skill-cli. It owns version selection, dependency order, release
 notes, signed immutable tags and publication. The
 [maintenance declaration](MAINTENANCE.md#members) lists skill-cli's required
