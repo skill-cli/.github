@@ -1,0 +1,9 @@
+#!/bin/sh
+set -eu
+
+case "${1-}" in
+  prepare) printf 'Presentation fixture ready.\n' > message.txt ;;
+  hello) printf 'Hello from demo.\n' ;;
+  read) cat "$2" ;;
+  *) printf 'Usage: demo prepare|hello|read <file>\n' >&2; exit 1 ;;
+esac

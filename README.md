@@ -28,7 +28,7 @@ and development notes, including the CLI's repository-specific instructions.
 | `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, `SECURITY.md`, `SUPPORT.md` | Organization community defaults |
 | `GOVERNANCE.md` | Project scope and maintainer responsibilities |
 | `.github/ISSUE_TEMPLATE/`, `.github/pull_request_template.md` | Default issue and pull-request intake |
-| `.github/workflows/` | Pinned family policy caller and local validation |
+| `.github/workflows/` | Pinned family policy caller, reusable presentation check and local validation |
 
 ## Validate the standard
 
@@ -56,11 +56,32 @@ for conformance, 1 for drift/local failure and 2 for unknown observations.
 Offline and public modes do not establish settings conformance.
 
 Follow the family's
-[workflow integration guide](https://github.com/agents-tools/.github/blob/c1f6d651595935b85ed2c112b84e0500abdf520b/Documentation/Reference/WorkflowIntegration.md)
+[workflow integration guide](https://github.com/agents-tools/.github/blob/aaddcb297cecb9e9273c807214e547d763cd85b4/Documentation/Reference/WorkflowIntegration.md)
 when updating pins or activating protection. Update `standard_revision` and
-the policy caller together. Both workflows run on branch pushes so adoption
-can be validated before opening a pull request; their contexts are
+the policy caller together. The CI and policy workflows run on branch pushes so adoption
+can be validated before opening a pull request; their required contexts are
 `policy / policy` and `check`.
+
+## Presentation workflow
+
+Members call `skill-cli/.github/.github/workflows/presentation.yml` at a full
+commit SHA with a `# vX.Y.Z` comment. It accepts `runner` (default
+`ubuntu-24.04`), required `executable-artifact` and `executable-path`, and
+`assets` (default `.github/assets`). Upload the built executable in a preceding
+job, make `presentation` depend on it, and pass the same runner OS that built
+it. Keep the caller job ID `presentation` for the context
+`presentation / presentation`.
+
+The workflow re-records `<assets>/terminal/script.yml`, then compares its
+`recording.json`, `terminal-light.svg` and `terminal-dark.svg`. The toolchain
+Action is pinned by this standard; DESIGN and fonts come from this repository
+at `job.workflow_sha`. Drift fails the job and uploads the commit-ready directory as
+`presentation-terminal.tar` (file modes preserved) in artifact
+`presentation-terminal`. CI exercises this contract with the executable and
+assets in [Tests/Fixtures/Presentation](Tests/Fixtures/Presentation/README.md).
+DESIGN lint uses the same Action and parser lockfile. Standard tags follow
+[VERSIONING.md](VERSIONING.md) and require the representative CLI consumer run
+on its own build runner before adoption or tag creation.
 
 ## Change the profile
 
@@ -87,14 +108,18 @@ repository renders from this catalog at a pinned revision.
 
 `DESIGN.md` stores visual tokens in Google's DESIGN.md front matter and its icon
 entry in Iconography. Read it before visual or asset work. After editing it,
-run:
+use the toolchain at `ca4eee1bf838cfa81fa6de3912270c74e47c3e76` (`v0.1.0`) in
+`.build/presentation-toolchain`, obtained using its
+[local regeneration instructions](https://github.com/showxu/skills/blob/ca4eee1bf838cfa81fa6de3912270c74e47c3e76/skills/github-readme-design/references/renderers.md#local-regeneration). Use the Node version in the
+copied `.node-version`, then run:
 
 ```sh
-npx --yes @google/design.md@0.4.0 lint DESIGN.md
+toolchain_dir="$PWD/.build/presentation-toolchain"
+node "$toolchain_dir/src/cli.ts" design lint --design DESIGN.md
 ```
 
-Require zero errors and zero warnings. The lint command exits 0 when it reports
-only warnings, so check both counts; CI enforces both.
+Require zero errors and zero warnings. CI calls the same pinned Action for
+DESIGN lint and terminal checks, so both use its locked parser version.
 
 The profile and social card recipes copy their values from `DESIGN.md`.
 Copy every changed value into `Brand/Profile/recipe.json` and each

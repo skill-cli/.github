@@ -15,6 +15,28 @@ permissions:
   contents: read
 
 jobs:
+  presentation-fixture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: presentation-fixture
+          path: Tests/Fixtures/Presentation/demo
+          if-no-files-found: error
+  presentation:
+    needs: presentation-fixture
+    uses: ./.github/workflows/presentation.yml
+    with:
+      runner: ubuntu-24.04
+      executable-artifact: presentation-fixture
+      executable-path: demo
+      assets: Tests/Fixtures/Presentation
   check:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -25,17 +47,11 @@ jobs:
         with:
           persist-credentials: false
       - name: Lint DESIGN.md
-        run: |
-          npx --yes @google/design.md@0.4.0 lint --format json DESIGN.md > "$RUNNER_TEMP/design-lint.json"
-          python3 - "$RUNNER_TEMP/design-lint.json" <<'PY'
-          import json, sys
-          report = json.load(open(sys.argv[1]))
-          for finding in report["findings"]:
-              if finding["severity"] in ("error", "warning"):
-                  print(f"::error file=DESIGN.md::{finding.get('path', '')} {finding.get('rule', 'lint')}: {finding.get('message', '')}")
-          summary = report["summary"]
-          sys.exit(1 if summary["errors"] or summary["warnings"] else 0)
-          PY
+        uses: showxu/skills/skills/github-readme-design/scripts@ca4eee1bf838cfa81fa6de3912270c74e47c3e76 # v0.1.0
+        with:
+          asset: design
+          command: lint
+          design: DESIGN.md
       - run: python3 -m unittest discover -s Tests
       - run: python3 Scripts/check --public
         env:
