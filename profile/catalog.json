@@ -1,7 +1,8 @@
 {
   "organization": {
     "login": "skill-cli",
-    "name": "skill-cli"
+    "name": "skill-cli",
+    "about": "Organization profile, brand and shared standards for skill-cli"
   },
   "promise": "Install and update agent skills, resolved to exact versions.",
   "secondary": "The skills edition of agents: works with Codex, Claude Code, Cursor, Gemini CLI and OpenCode. Upstream changes are previewed before you apply them.",
@@ -46,7 +47,10 @@
           "icon": {
             "light": "https://raw.githubusercontent.com/skill-cli/cli/HEAD/.github/assets/logo/logo-light.png",
             "dark": "https://raw.githubusercontent.com/skill-cli/cli/HEAD/.github/assets/logo/logo-dark.png"
-          }
+          },
+          "kind": "tool",
+          "title": "skill",
+          "about": "Install and update agent skills, resolved to exact versions."
         }
       ]
     },
@@ -59,7 +63,10 @@
           "icon": {
             "light": "https://raw.githubusercontent.com/skill-cli/.github/HEAD/profile/assets/icon-dark.png",
             "dark": "https://raw.githubusercontent.com/skill-cli/.github/HEAD/profile/assets/icon.png"
-          }
+          },
+          "kind": "distribution",
+          "title": "homebrew-tap",
+          "about": "Install skill with Homebrew."
         }
       ]
     }

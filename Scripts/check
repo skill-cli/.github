@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check the profile, family adoption and declared GitHub settings."""
+"""Check public membership, About descriptions, family adoption and GitHub settings."""
 
 import argparse
 from http.client import HTTPException
@@ -7,7 +7,6 @@ import json
 import os
 from pathlib import Path
 import re
-import subprocess
 import sys
 from urllib.parse import quote, urlsplit
 from urllib.request import Request, urlopen
@@ -19,14 +18,24 @@ sys.path.insert(0, str(ROOT / "Scripts"))
 import family_settings
 
 
-def validate_catalog(catalog, root=ROOT):
-    """Validate with the vendored shared renderer, the catalog's schema owner."""
-    sys.path.insert(0, str(root / "Scripts/vendor"))
+def read_catalog(root=ROOT):
+    """Read the fields needed for membership; the profile workflow owns the schema."""
+    catalog = json.loads((root / "profile/catalog.json").read_text(encoding="utf-8"))
     try:
-        import render_profile
-    finally:
-        sys.path.pop(0)
-    render_profile.validate_catalog(catalog)
+        login = catalog["organization"]["login"]
+        groups = catalog["groups"]
+        if not isinstance(login, str) or not login or not isinstance(groups, list):
+            raise ValueError("expected organization.login and groups")
+        for group in groups:
+            entries = group["repositories"]
+            if not isinstance(entries, list):
+                raise ValueError("expected group repositories")
+            for entry in entries:
+                if not isinstance(entry["name"], str) or not entry["name"]:
+                    raise ValueError("expected repository name")
+    except (KeyError, TypeError) as error:
+        raise ValueError("cannot read catalog membership fields") from error
+    return catalog
 
 
 def fetch_repositories(organization, token=None, *, opener=urlopen):
@@ -91,35 +100,66 @@ def compare_membership(catalog, repositories):
         raise ValueError("; ".join(differences))
 
 
+def compare_about(catalog, repositories):
+    live = {repository["name"]: repository for repository in repositories}
+    entries = [(".github", catalog["organization"])] + [
+        (entry["name"], entry) for group in catalog["groups"] for entry in group["repositories"]
+    ]
+    differences = []
+    for name, entry in entries:
+        if not isinstance(entry.get("about"), str) or not entry["about"]:
+            differences.append(f"{name}: catalog about is missing or invalid")
+        elif name not in live:
+            differences.append(f"{name}: live repository is missing")
+        elif "description" not in live[name]:
+            differences.append(f"{name}: live description is unavailable")
+        elif entry["about"] != live[name]["description"]:
+            differences.append(f"{name}: catalog {entry['about']!r}; live {live[name]['description']!r}")
+    if differences:
+        raise ValueError("; ".join(differences))
+
+
+def check_repositories(catalog, catalog_error, *, offline=False):
+    if catalog is None:
+        for label in ("repository membership", "repository about"):
+            print(f"FAIL {label}: " + " ".join(str(catalog_error).splitlines()))
+        return True
+    if offline:
+        print("SKIP repository membership (--offline)")
+        print("SKIP repository about (--offline)")
+        return False
+    try:
+        repositories = fetch_repositories(catalog["organization"]["login"], os.environ.get("GITHUB_TOKEN"))
+    except (OSError, ValueError) as error:
+        for label in ("repository membership", "repository about"):
+            print(f"FAIL {label}: " + " ".join(str(error).splitlines()))
+        return True
+    failed = False
+    for label, compare in (("repository membership", compare_membership),
+                           ("repository about", compare_about)):
+        try:
+            compare(catalog, repositories)
+            print(f"PASS {label}")
+        except ValueError as error:
+            print(f"FAIL {label}: " + " ".join(str(error).splitlines()))
+            failed = True
+    return failed
+
+
 def main(argv=None, *, root=ROOT):
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--offline", action="store_true", help="validate local files without network access")
-    mode.add_argument("--public", action="store_true", help="check public membership, skip administrative settings")
+    mode.add_argument("--public", action="store_true", help="check public membership and About descriptions, skip administrative settings")
     args = parser.parse_args(argv)
     failed = False
     catalog = None
     declaration = None
+    catalog_error = None
     try:
-        candidate = json.loads((root / "profile/catalog.json").read_text(encoding="utf-8"))
-        validate_catalog(candidate, root)
-        catalog = candidate
-        print("PASS catalog validation")
+        catalog = read_catalog(root)
     except (OSError, UnicodeError, ValueError, KeyError, TypeError) as error:
-        print("FAIL catalog validation: " + " ".join(str(error).splitlines()))
-        failed = True
-
-    try:
-        result = subprocess.run(
-            [sys.executable, str(root / "Scripts/render-profile.py"), "--check"],
-            cwd=root, capture_output=True, text=True, check=False,
-        )
-        if result.returncode:
-            raise ValueError("run python3 Scripts/render-profile.py --check for details")
-        print("PASS generated profile")
-    except (OSError, ValueError) as error:
-        print("FAIL generated profile: " + " ".join(str(error).splitlines()))
-        failed = True
+        catalog_error = error
 
     try:
         if catalog is None:
@@ -130,18 +170,7 @@ def main(argv=None, *, root=ROOT):
         print("FAIL family adoption declaration: " + " ".join(str(error).splitlines()))
         failed = True
 
-    if args.offline:
-        print("SKIP repository membership (--offline)")
-    else:
-        try:
-            if catalog is None:
-                raise ValueError("cannot compare an invalid catalog")
-            repositories = fetch_repositories(catalog["organization"]["login"], os.environ.get("GITHUB_TOKEN"))
-            compare_membership(catalog, repositories)
-            print("PASS repository membership")
-        except (OSError, ValueError) as error:
-            print("FAIL repository membership: " + " ".join(str(error).splitlines()))
-            failed = True
+    failed = check_repositories(catalog, catalog_error, offline=args.offline) or failed
     if args.offline or args.public:
         print("SKIP administrative settings (" + ("--offline" if args.offline else "--public") + ")")
         return int(failed)

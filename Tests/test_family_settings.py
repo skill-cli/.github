@@ -154,5 +154,25 @@ class SharedCheckerTests(unittest.TestCase):
                                    opener=mock.Mock(side_effect=URLError("private diagnostic")))
 
 
+class CheckCommandTests(unittest.TestCase):
+    def test_family_failures_keep_their_exit_statuses(self):
+        from contextlib import redirect_stdout
+        from test_check import checks
+
+        for failure, status, message in (
+            (settings.Unavailable("unreachable"), 2, "UNKNOWN family standard: unreachable"),
+            (ValueError("contexts differ"), 1, "FAIL administrative settings: contexts differ"),
+        ):
+            with self.subTest(failure=failure):
+                output = io.StringIO()
+                with redirect_stdout(output), mock.patch.object(
+                    checks, "fetch_repositories", return_value=[]
+                ), mock.patch.object(checks, "compare_membership"), mock.patch.object(
+                    checks, "compare_about"
+                ), mock.patch.object(checks.family_settings, "check_online", side_effect=failure):
+                    self.assertEqual(checks.main([]), status)
+                self.assertEqual(output.getvalue().splitlines()[-1], message)
+
+
 if __name__ == "__main__":
     unittest.main()
