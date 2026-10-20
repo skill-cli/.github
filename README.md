@@ -15,10 +15,10 @@ and development notes, including the CLI's repository-specific instructions.
 | Path | Contents |
 | --- | --- |
 | `profile/catalog.json` | Promise, account description, links, quick start, repository groups, outcomes and icons of the organization profile |
-| `Brand/Profile/recipe.json` | Profile tokens resolved from DESIGN.md |
+| `Brand/Profile/recipe.json` | Profile render values and the DESIGN.md digest binding |
 | `profile/README.md` | Organization profile, generated from the catalog |
 | `profile/assets/` | Organization avatar and profile mark |
-| `DESIGN.md` | Colors, presentation tokens and the app icon entry |
+| `DESIGN.md` | Visual tokens in Google's DESIGN.md format and the app icon entry |
 | `Brand/Icon/` | Icon layer artwork |
 | `Brand/Exports/skill-cli/` | Icon Composer document generated from the app icon entry |
 | [Brand/Social/](Brand/Social/README.md) | Repository social card recipes, outlined SVGs, PNGs and layout receipts |
@@ -82,6 +82,26 @@ shown in its README header, the mark and icons may declare light and dark
 images, and optional fields cover the quick start, the account `description`
 and the maintainer line. The member dashboard in the private `.github-private`
 repository renders from this catalog at a pinned revision.
+
+## Change the design
+
+`DESIGN.md` stores visual tokens in Google's DESIGN.md front matter and its icon
+entry in Iconography. Read it before visual or asset work. After editing it,
+run:
+
+```sh
+npx --yes @google/design.md@0.4.0 lint DESIGN.md
+```
+
+Require zero errors and zero warnings. The lint command exits 0 when it reports
+only warnings, so check both counts; CI enforces both.
+
+Update `design_sha256` in `Brand/Profile/recipe.json` and every
+`Brand/Social/*/recipe.json` to the SHA-256 of the final `DESIGN.md`, then run
+`python3 Scripts/render-profile.py` and regenerate the
+[social cards](Brand/Social/README.md). Follow the icon procedure below for a
+changed entry or artwork. Commit `DESIGN.md`, recipes, sources and outputs
+together.
 
 ## Change the icon
 

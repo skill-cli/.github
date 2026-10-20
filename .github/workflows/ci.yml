@@ -24,6 +24,18 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Lint DESIGN.md
+        run: |
+          npx --yes @google/design.md@0.4.0 lint --format json DESIGN.md > "$RUNNER_TEMP/design-lint.json"
+          python3 - "$RUNNER_TEMP/design-lint.json" <<'PY'
+          import json, sys
+          report = json.load(open(sys.argv[1]))
+          for finding in report["findings"]:
+              if finding["severity"] in ("error", "warning"):
+                  print(f"::error file=DESIGN.md::{finding.get('path', '')} {finding['rule']}: {finding['message']}")
+          summary = report["summary"]
+          sys.exit(1 if summary["errors"] or summary["warnings"] else 0)
+          PY
       - run: python3 -m unittest discover -s Tests
       - run: python3 Scripts/check --public
         env:

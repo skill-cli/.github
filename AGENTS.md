@@ -10,8 +10,11 @@ Read `README.md` first.
   GitHub.
 - Repository summaries state what the repository does for a visitor, in one
   sentence, from that repository's current behavior.
-- Brand values live in `DESIGN.md`. Change the entry or `Brand/Icon/`
-  artwork, regenerate every output listed there as described in `README.md`,
-  and commit sources and outputs together.
+- `DESIGN.md` owns the organization's visual tokens (Google DESIGN.md format,
+  tokens in the front matter) and its icon entry. Read it before visual or asset
+  work. After changing it, lint it (zero errors and zero warnings), update
+  every recipe's `design_sha256`, and regenerate its listed outputs as
+  described in `README.md`. Regenerate affected outputs after `Brand/Icon/`
+  artwork changes; commit sources and outputs together.
 - Run `python3 Scripts/check` and `python3 -m unittest discover -s Tests`
   before handing off a change.
