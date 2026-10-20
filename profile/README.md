@@ -17,7 +17,7 @@ skill list
 <h2>Manage skills</h2>
 
 <table>
-<tr><td><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/skill-cli/cli/HEAD/Documentation/Assets/Logo.png"><img src="https://raw.githubusercontent.com/skill-cli/cli/HEAD/Documentation/Assets/Logo-dark.png" width="40" height="40" alt="cli icon"></picture></td><td><strong><a href="https://github.com/skill-cli/cli">cli</a></strong><br>The skill command: add skills from local paths, Git repositories or well-known indexes, pin them, restore installs and review watched sources.</td></tr>
+<tr><td><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/skill-cli/cli/HEAD/.github/assets/logo/logo-dark.png"><img src="https://raw.githubusercontent.com/skill-cli/cli/HEAD/.github/assets/logo/logo-light.png" width="40" height="40" alt="cli icon"></picture></td><td><strong><a href="https://github.com/skill-cli/cli">cli</a></strong><br>The skill command: add skills from local paths, Git repositories or well-known indexes, pin them, restore installs and review watched sources.</td></tr>
 </table>
 
 <h2>Install the CLI</h2>

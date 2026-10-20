@@ -44,8 +44,8 @@
           "name": "cli",
           "outcome": "The skill command: add skills from local paths, Git repositories or well-known indexes, pin them, restore installs and review watched sources.",
           "icon": {
-            "light": "https://raw.githubusercontent.com/skill-cli/cli/HEAD/Documentation/Assets/Logo-dark.png",
-            "dark": "https://raw.githubusercontent.com/skill-cli/cli/HEAD/Documentation/Assets/Logo.png"
+            "light": "https://raw.githubusercontent.com/skill-cli/cli/HEAD/.github/assets/logo/logo-light.png",
+            "dark": "https://raw.githubusercontent.com/skill-cli/cli/HEAD/.github/assets/logo/logo-dark.png"
           }
         }
       ]
