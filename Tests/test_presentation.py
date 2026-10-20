@@ -67,7 +67,8 @@ class PresentationContractTests(unittest.TestCase):
             self.assertIn(setting, lint)
         upload = step('Upload regenerated terminal assets')
         for setting in ('if: ${{ failure() }}', 'name: presentation-terminal',
-                        'path: ${{ runner.temp }}/presentation-terminal', 'if-no-files-found: ignore'):
+                        'path: ${{ runner.temp }}/presentation-terminal', 'if-no-files-found: ignore',
+                        'include-hidden-files: true'):
             self.assertIn(setting, upload)
         names = re.findall(r'^      - name: (.+)$', WORKFLOW, re.M)
         self.assertEqual(names, ['Validate workflow revision', 'Check out caller',

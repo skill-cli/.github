@@ -93,3 +93,4 @@ jobs:
           name: presentation-terminal
           path: ${{ runner.temp }}/presentation-terminal
           if-no-files-found: ignore
+          include-hidden-files: true
