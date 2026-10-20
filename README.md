@@ -14,21 +14,20 @@ and development notes, including the CLI's repository-specific instructions.
 
 | Path | Contents |
 | --- | --- |
-| `profile/catalog.json` | Promise, account description, links, quick start, repository groups, outcomes and icons of the organization profile |
-| `Brand/Profile/recipe.json` | Profile render values and the DESIGN.md digest binding |
+| `profile/catalog.json` | Profile content, repository kinds, titles, About descriptions and icons |
+| `.github/assets/social-preview/social-preview.png` | Organization repository social preview |
 | `profile/README.md` | Organization profile, generated from the catalog |
 | `profile/assets/` | Organization avatar and profile mark |
 | `DESIGN.md` | Visual tokens in Google's DESIGN.md format and the app icon entry |
 | `Brand/Icon/` | Icon layer artwork |
 | `Brand/Exports/skill-cli/` | Icon Composer document generated from the app icon entry |
-| [Brand/Social/](Brand/Social/README.md) | Repository social card recipes, outlined SVGs, PNGs and layout receipts |
-| `Scripts/` | Profile generator, vendored renderer and repository checks |
+| `Scripts/` | Presentation input resolver, family settings adapter and read-only repository checks |
 | `MAINTENANCE.md` | Family adoption, member contexts, legacy commits and advisory review |
 | `VERSIONING.md` | Family versioning reference, member release values and legacy tags |
 | `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, `SECURITY.md`, `SUPPORT.md` | Organization community defaults |
 | `GOVERNANCE.md` | Project scope and maintainer responsibilities |
 | `.github/ISSUE_TEMPLATE/`, `.github/pull_request_template.md` | Default issue and pull-request intake |
-| `.github/workflows/` | Pinned family policy caller, reusable presentation check and local validation |
+| `.github/workflows/` | Pinned family policy caller, reusable presentation and profile checks, and local validation |
 
 ## Validate the standard
 
@@ -39,10 +38,12 @@ python3 Scripts/check --public
 python3 Scripts/check
 ```
 
-Offline checks validate the catalog, generated profile, member declaration and
-policy pin. CI uses `--public` to add public repository membership with its
-read-only workflow token. The default online mode requires an authenticated
-`gh` session with read access to settings for all three skill-cli members.
+Offline checks read catalog membership fields and validate the member
+declaration and policy pin. CI uses `--public` to compare public repository
+membership and About descriptions with its read-only workflow token. The
+profile workflow validates the catalog and generated profile. The default
+online mode requires an authenticated `gh` session with read access to settings
+for the declared skill-cli members.
 
 The online check reads `Scripts/settings.py` and `MAINTENANCE.md` directly from
 the reviewed family revision in the adoption declaration. It reuses that
@@ -62,73 +63,133 @@ the policy caller together. The CI and policy workflows run on branch pushes so 
 can be validated before opening a pull request; their required contexts are
 `policy / policy` and `check`.
 
-## Presentation workflow
+## Presentation and profile workflows
 
-Members call `skill-cli/.github/.github/workflows/presentation.yml` at a full
-commit SHA with a `# vX.Y.Z` comment. It accepts `runner` (default
-`ubuntu-24.04`), required `executable-artifact` and `executable-path`, and
-`assets` (default `.github/assets`). Upload the built executable in a preceding
-job, make `presentation` depend on it, and pass the same runner OS that built
-it. Keep the caller job ID `presentation` for the context
-`presentation / presentation`.
+Members pin `skill-cli/.github/.github/workflows/presentation.yml` by full SHA
+with a `# vX.Y.Z` comment. Its inputs are `runner` (default `ubuntu-24.04`),
+`executable-artifact` and `executable-path` (both default empty), and `assets`
+(default `.github/assets`). The catalog kind determines the checked assets:
 
-The workflow re-records `<assets>/terminal/script.yml`, then compares its
-`recording.json`, `terminal-light.svg` and `terminal-dark.svg`. The toolchain
-Action is pinned by this standard; DESIGN and fonts come from this repository
-at `job.workflow_sha`. Drift fails the job and uploads the commit-ready directory as
-`presentation-terminal.tar` (file modes preserved) in artifact
-`presentation-terminal`. CI exercises this contract with the executable and
-assets in [Tests/Fixtures/Presentation](Tests/Fixtures/Presentation/README.md).
-DESIGN lint uses the same Action and parser lockfile. Standard tags follow
-[VERSIONING.md](VERSIONING.md) and require the representative CLI consumer run
-on its own build runner before adoption or tag creation.
+| Kind | Assets | Executable inputs |
+| --- | --- | --- |
+| `tool` | `terminal`, `social-preview` | Both required |
+| `library`, `app`, `distribution`, organization `.github` | `social-preview` | Both rejected |
+| `website` | None; calling the workflow fails | Not applicable |
+
+A tool uploads its built executable in a preceding job and passes that
+artifact and the same runner OS to `presentation`. A library, app or
+distribution calls without executable inputs. The workflow rejects an owner
+other than the catalog organization, an unlisted repository, missing expected
+asset directories and a terminal directory for a kind without terminal.
+DESIGN, fonts and catalog come from this standard at `job.workflow_sha`.
+The icon is the catalog's light-page raw GitHub HEAD URL, resolved to the
+caller checkout or this standard's `.github` checkout; other hosts, owners,
+repositories, refs, queries, fragments and escaping paths fail.
+
+The terminal check records the real executable and compares its recording and
+both SVGs; the social preview check compares the PNG. Failure artifact
+`presentation` contains `presentation.tar`, preserving file modes and hidden
+files. Extract it with `tar -xf presentation.tar -C .github/assets`, review and
+commit the regenerated files. Upload is skipped when no files were generated.
+
+`skill-cli/.github/.github/workflows/profile.yml` accepts `mode` (`public` by
+default, or `member`), `member` (`profile/member.json`) and `output`
+(`profile/README.md`). Paths are relative to the caller without `..` segments.
+It validates mode and `job.workflow_sha` before checkout, uses the standard's
+catalog and DESIGN at that SHA, and supplies that same revision only in member
+mode. Failure artifact `profile` contains the regenerated Markdown file.
+The member dashboard calls it from a job named `check`:
+
+```yaml
+jobs:
+  check:
+    uses: skill-cli/.github/.github/workflows/profile.yml@0000000000000000000000000000000000000000 # vX.Y.Z
+    with:
+      mode: member
+```
+
+Replace the zeros and version comment with the accepted standard commit and
+tag. Remove the `catalog` binding from `profile/member.json`; the workflow pin
+selects the inputs. The resulting context is `check / profile`. Update the
+member's maintenance declaration and live ruleset only after that context has
+appeared on a real run under the family's activation gate.
+
+Both workflows check out caller and standard without persisted credentials.
+This repository calls both locally in CI with default inputs. Its required
+contexts remain `policy / policy` and `check`. Keep member caller IDs
+`presentation` and `check` for `presentation / presentation` and
+`check / profile`. Before tag creation or pin rollout, a representative CLI
+must run the candidate presentation workflow against its freshly built
+executable on its build runner. The organization preview check does not prove
+that tool path. See the family integration guide for caller examples and the
+consumer real-run gate.
 
 ## Change the profile
 
-Edit `profile/catalog.json`, then regenerate the profile and run the checks:
+Edit `profile/catalog.json`, then regenerate `profile/README.md` with the
+pinned toolchain using the commands below. Commit the catalog and generated
+README together. The catalog lists every public, non-archived repository of
+the organization except `.github`. Each entry declares its `kind`, `title`,
+verbatim repository `about`, plain-text `outcome` and README header `icon`.
+The organization also declares its own `.github` repository's `about`.
+Marks and icons may select light and dark images.
+
+The profile workflow owns catalog validation and compares the generated
+profile byte for byte. `Scripts/check` reads membership fields and compares
+membership and every `about` with GitHub in online and public modes; it lists
+all description differences together. Offline mode skips these live checks.
+The private `.github-private` dashboard uses the catalog and DESIGN at its
+pinned profile workflow revision, with operational values in
+`profile/member.json`.
+
+## Change the design and regenerate assets
+
+`DESIGN.md` owns the visual tokens in Google's DESIGN.md front matter and the
+icon entries. Read it before visual or asset work. The same pinned TypeScript
+toolchain lints DESIGN and renders profiles, social previews and terminals. Use
+the package at `e5a50c34bf66264a436288f96e44db9caa305912` (`v0.2.0`) in the
+ignored `.build/presentation-toolchain`, following its [local regeneration
+contract](https://github.com/showxu/skills/blob/e5a50c34bf66264a436288f96e44db9caa305912/skills/github-readme-design/references/renderers.md#local-regeneration):
 
 ```sh
-python3 Scripts/render-profile.py
-python3 Scripts/check
-```
-
-The catalog must list every public, non-archived repository of the
-organization except `.github`. The check compares it with the organization's
-repositories on GitHub.
-
-`Scripts/render-profile.py` runs the [vendored](Scripts/vendor/README.md)
-shared renderer from `github-readme-design`, which owns the catalog contract
-and layout: each repository row has a plain-text `outcome` and the `icon`
-shown in its README header, the mark and icons may declare light and dark
-images, and optional fields cover the quick start, the account `description`
-and the maintainer line. The member dashboard in the private `.github-private`
-repository renders from this catalog at a pinned revision.
-
-## Change the design
-
-`DESIGN.md` stores visual tokens in Google's DESIGN.md front matter and its icon
-entry in Iconography. Read it before visual or asset work. After editing it,
-use the toolchain at `ca4eee1bf838cfa81fa6de3912270c74e47c3e76` (`v0.1.0`) in
-`.build/presentation-toolchain`, obtained using its
-[local regeneration instructions](https://github.com/showxu/skills/blob/ca4eee1bf838cfa81fa6de3912270c74e47c3e76/skills/github-readme-design/references/renderers.md#local-regeneration). Use the Node version in the
-copied `.node-version`, then run:
-
-```sh
+toolchain_commit='e5a50c34bf66264a436288f96e44db9caa305912' # v0.2.0
 toolchain_dir="$PWD/.build/presentation-toolchain"
+mkdir -p "$toolchain_dir"
+curl -fsSL "https://api.github.com/repos/showxu/skills/tarball/$toolchain_commit" \
+  -o "$toolchain_dir/source.tar.gz"
+archive_root="$(tar -tzf "$toolchain_dir/source.tar.gz" | sed -n '1s,/.*,,p')"
+tar -xzf "$toolchain_dir/source.tar.gz" -C "$toolchain_dir" --strip-components=4 \
+  "$archive_root/skills/github-readme-design/scripts"
+tar -xzf "$toolchain_dir/source.tar.gz" -C "$toolchain_dir" --strip-components=1 \
+  "$archive_root/LICENSE"
+node --version # Must match the copied .node-version; use that runtime below.
+npm ci --ignore-scripts --omit=dev --prefix "$toolchain_dir"
 node "$toolchain_dir/src/cli.ts" design lint --design DESIGN.md
+node "$toolchain_dir/src/cli.ts" profile render \
+  --design DESIGN.md --catalog profile/catalog.json --out profile/README.md
+node "$toolchain_dir/src/cli.ts" profile check \
+  --design DESIGN.md --catalog profile/catalog.json --out profile/README.md
+node "$toolchain_dir/src/cli.ts" social-preview render \
+  --design DESIGN.md --fonts Brand/Fonts --catalog profile/catalog.json \
+  --repository .github --icon profile/assets/icon-dark.png \
+  --out .github/assets/social-preview/social-preview.png
+node "$toolchain_dir/src/cli.ts" social-preview check \
+  --design DESIGN.md --fonts Brand/Fonts --catalog profile/catalog.json \
+  --repository .github --icon profile/assets/icon-dark.png \
+  --assets .github/assets/social-preview
 ```
 
-Require zero errors and zero warnings. CI calls the same pinned Action for
-DESIGN lint and terminal checks, so both use its locked parser version.
+DESIGN lint requires zero errors and zero warnings. The icon above is the
+catalog mark's light-page image. Public profile commands omit member input and
+catalog revision. These commands generate the organization's own assets;
+members keep their previews in their own `.github/assets/social-preview/`.
+Uploading the PNG in GitHub Settings remains a separate manual step.
 
-The profile and social card recipes copy their values from `DESIGN.md`.
-Copy every changed value into `Brand/Profile/recipe.json` and each
-`Brand/Social/*/recipe.json` that uses it, set each recipe's `design_sha256`
-to the SHA-256 of the final `DESIGN.md`, then run
-`python3 Scripts/render-profile.py` and regenerate the
-[social cards](Brand/Social/README.md). Follow the icon procedure below for a
-changed entry or artwork. Commit `DESIGN.md`, recipes, sources and outputs
-together.
+Regenerate every output that reads changed DESIGN tokens or icon artwork,
+review the outputs, and commit sources and outputs together. CI's local
+`presentation` and `profile` calls check the organization's preview and public
+profile. Reuse the package directory for a pin, replace its contents when
+changing pins, and remove download and dependency outputs when finished.
 
 ## Change the icon
 

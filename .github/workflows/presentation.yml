@@ -10,11 +10,11 @@ on:
       executable-artifact:
         description: Name of the caller's uploaded executable artifact
         type: string
-        required: true
+        default: ''
       executable-path:
         description: Relative path of the executable inside the artifact
         type: string
-        required: true
+        default: ''
       assets:
         description: Asset root relative to the caller checkout
         type: string
@@ -58,12 +58,26 @@ jobs:
           ref: ${{ job.workflow_sha }}
           path: standard
           persist-credentials: false
+      - name: Resolve inputs
+        id: inputs
+        working-directory: standard
+        env:
+          CALLER_REPOSITORY: ${{ github.repository }}
+          ASSETS: ${{ inputs.assets }}
+          EXECUTABLE_ARTIFACT: ${{ inputs.executable-artifact }}
+          EXECUTABLE_PATH: ${{ inputs.executable-path }}
+        run: |
+          python3 Scripts/presentation-inputs.py --repository "$CALLER_REPOSITORY" \
+            --assets "$ASSETS" --executable-artifact "$EXECUTABLE_ARTIFACT" \
+            --executable-path "$EXECUTABLE_PATH"
       - name: Download executable
+        if: ${{ steps.inputs.outputs.kind == 'tool' }}
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: ${{ inputs.executable-artifact }}
           path: ${{ runner.temp }}/executable
       - name: Prepare executable
+        if: ${{ steps.inputs.outputs.kind == 'tool' }}
         env:
           EXECUTABLE_PATH: ${{ inputs.executable-path }}
         run: |
@@ -77,7 +91,8 @@ jobs:
           fi
           chmod +x "$RUNNER_TEMP/executable/$EXECUTABLE_PATH"
       - name: Check terminal presentation
-        uses: showxu/skills/skills/github-readme-design/scripts@ca4eee1bf838cfa81fa6de3912270c74e47c3e76 # v0.1.0
+        if: ${{ steps.inputs.outputs.kind == 'tool' }}
+        uses: showxu/skills/skills/github-readme-design/scripts@e5a50c34bf66264a436288f96e44db9caa305912 # v0.2.0
         with:
           asset: terminal
           command: check
@@ -85,17 +100,30 @@ jobs:
           fonts: standard/Brand/Fonts
           assets: caller/${{ inputs.assets }}/terminal
           executable: ${{ runner.temp }}/executable/${{ inputs.executable-path }}
-          artifact-dir: ${{ runner.temp }}/presentation-terminal
-      - name: Archive regenerated terminal assets
+          artifact-dir: ${{ runner.temp }}/presentation/terminal
+      - name: Check social preview
+        if: ${{ !cancelled() && steps.inputs.outcome == 'success' }}
+        uses: showxu/skills/skills/github-readme-design/scripts@e5a50c34bf66264a436288f96e44db9caa305912 # v0.2.0
+        with:
+          asset: social-preview
+          command: check
+          design: standard/DESIGN.md
+          fonts: standard/Brand/Fonts
+          catalog: standard/profile/catalog.json
+          repository: ${{ steps.inputs.outputs.repository }}
+          icon: ${{ steps.inputs.outputs.icon }}
+          assets: caller/${{ inputs.assets }}/social-preview
+          artifact-dir: ${{ runner.temp }}/presentation/social-preview
+      - name: Archive regenerated presentation assets
         if: ${{ failure() }}
         run: |
-          if [[ -d "$RUNNER_TEMP/presentation-terminal" ]]; then
-            tar -C "$RUNNER_TEMP/presentation-terminal" -cf "$RUNNER_TEMP/presentation-terminal.tar" .
+          if [[ -d "$RUNNER_TEMP/presentation" ]]; then
+            tar -C "$RUNNER_TEMP/presentation" -cf "$RUNNER_TEMP/presentation.tar" .
           fi
-      - name: Upload regenerated terminal assets
+      - name: Upload regenerated presentation assets
         if: ${{ failure() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: presentation-terminal
-          path: ${{ runner.temp }}/presentation-terminal.tar
+          name: presentation
+          path: ${{ runner.temp }}/presentation.tar
           if-no-files-found: ignore

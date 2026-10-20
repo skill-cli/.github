@@ -28,15 +28,21 @@ typography:
     fontVariation: "'MONO' 1"
   social-preview-title:
     fontFamily: Google Sans Code
+    fontSize: 72px
     fontWeight: 700
+    lineHeight: 82.8px
     fontVariation: "'MONO' 0"
   social-preview-owner:
     fontFamily: Google Sans Code
+    fontSize: 28px
     fontWeight: 500
+    lineHeight: 28px
     fontVariation: "'MONO' 0"
   social-preview-body:
     fontFamily: Google Sans Code
+    fontSize: 32px
     fontWeight: 400
+    lineHeight: 44px
     fontVariation: "'MONO' 0"
 rounded:
   terminal: 10px
@@ -45,6 +51,14 @@ spacing:
   terminal-title-bar: 34px
   terminal-min-width: 560px
   hairline: 1px
+  social-preview-padding: 64px
+  social-preview-gap: 64px
+  social-preview-stack: 24px
+  social-preview-icon: 384px
+  profile-header-icon: 128px
+  profile-member-header-icon: 64px
+  profile-row-icon: 40px
+  profile-member-row-icon: 24px
 components:
   terminal:
     backgroundColor: "{colors.terminal-surface}"
@@ -84,6 +98,11 @@ components:
     backgroundColor: "{colors.social-preview-background}"
     textColor: "{colors.ink}"
     typography: "{typography.social-preview-title}"
+    padding: "{spacing.social-preview-padding}"
+    size: "{spacing.social-preview-icon}"
+  social-preview-gap:
+    width: "{spacing.social-preview-gap}"
+    height: "{spacing.social-preview-stack}"
   social-preview-owner:
     backgroundColor: "{colors.social-preview-background}"
     textColor: "{colors.ink}"
@@ -92,6 +111,14 @@ components:
     backgroundColor: "{colors.social-preview-background}"
     textColor: "{colors.social-preview-muted}"
     typography: "{typography.social-preview-body}"
+  profile-header:
+    size: "{spacing.profile-header-icon}"
+  profile-member-header:
+    size: "{spacing.profile-member-header-icon}"
+  profile-row:
+    size: "{spacing.profile-row-icon}"
+  profile-member-row:
+    size: "{spacing.profile-member-row-icon}"
 ---
 
 # skill-cli Design
@@ -111,10 +138,9 @@ This file follows Google's [DESIGN.md format](https://github.com/google-labs-cod
 (`version: alpha`). Every token lives in the front matter; the sections below
 explain intent and cite token names instead of values. CI lints this file
 with the official `@google/design.md` parser and rejects any error or warning.
-The terminal toolchain in `github-readme-design` reads the tokens through the
-same parser; the social preview and profile renderers read recipes that copy
-their values and record this file's digest. Change a token, update the
-recipes that copy it, then regenerate every output that reads it.
+`github-readme-design`'s toolchain renders terminal demos, social previews and
+the organization profiles from these tokens through the same parser. Change a
+token, then regenerate every output that reads it.
 
 ## Colors
 
@@ -153,10 +179,6 @@ release archive (SHA-256
 `eebba2a438882396e8530cad6d6cb80182b0afb6e9e0ad07b7340359a53ba2e9`), licensed
 under the SIL Open Font License 1.1 (`Brand/Fonts/OFL.txt`).
 
-The social preview renderer reads static `MONO` 0 instances,
-`Brand/Fonts/GoogleSansCodeProportional-{Regular,Medium,Bold}.ttf`;
-`python3 Brand/Fonts/instantiate.py` reproduces them byte for byte.
-
 ## Layout
 
 A terminal window is never narrower than `terminal-min-width` and grows with
@@ -166,20 +188,23 @@ shortened, never scaled down. The title bar is `terminal-title-bar` tall, the
 session sits `terminal-padding` from every edge, and one empty line separates
 commands.
 
+### Social preview canvas
+
+A social preview fills GitHub's 1280×640 canvas. The icon is a
+`social-preview-icon` square set `social-preview-padding` from the left edge,
+and the text column starts `social-preview-gap` after it. Owner, title and
+About stack `social-preview-stack` apart, centered vertically. Text is never
+cut: a long title shrinks, then breaks at a hyphen or slash, and the About
+sentence wraps.
+
 ### Organization profile
 
 The public profile (`profile/README.md`) and the member dashboard in the
 private `.github-private` repository are rendered by `github-readme-design`'s
-`render_profile.py` from `profile/catalog.json`. `Brand/Profile/recipe.json`
-copies these values and records this file's digest.
-
-| Name | Value | Use |
-| --- | --- | --- |
-| `public_header_icon_size` | 128 px | Umbrella mark on the public profile |
-| `member_header_icon_size` | 64 px | Umbrella mark on the member dashboard |
-| `public_row_icon_size` | 40 px | Repository icons on the public profile |
-| `member_row_icon_size` | 24 px | Repository icons on the member dashboard |
-| `badge_style` | `flat` | CI and release badges on the member dashboard |
+toolchain from `profile/catalog.json`. The umbrella mark is a
+`profile-header-icon` square on the public profile and a
+`profile-member-header-icon` square on the dashboard; repository icons use
+`profile-row-icon` and `profile-member-row-icon`.
 
 | Field | Source |
 | --- | --- |
@@ -212,23 +237,25 @@ change, which renderers merge over the base.
 | `terminal-title-bar` | Title band and the session title |
 | `terminal-prompt` | The `$ ` before each command |
 | `terminal-command` | Command text |
-| `social-preview` | Card ground and repository title |
+| `social-preview` | Card ground, padding, icon square and repository title |
+| `social-preview-gap` | Gap after the icon and between the text blocks |
 | `social-preview-owner` | Owner label |
 | `social-preview-about` | About sentence |
+| `profile-header`, `profile-member-header` | Umbrella mark on the public profile and the member dashboard |
+| `profile-row`, `profile-member-row` | Repository icons on the public profile and the member dashboard |
 
 ### Social preview
 
 | Field | Source |
 | --- | --- |
 | `owner` | The organization login, `skill-cli` |
-| `title` | The repository's README title: `skill` for cli, `homebrew-tap` for the tap |
-| `about` | The repository's About sentence, which is also its README tagline, complete and unchanged |
-| `icon` | The skill mark in its dark appearance, `profile/assets/icon-dark.png` (512 px PNG), which keeps its edge on the light canvas |
+| `title` | The catalog entry's `title`, the repository's README title: `skill` for cli, `homebrew-tap` for the tap; the organization `name` for `.github` |
+| `about` | The catalog entry's `about`, the repository's About sentence and README tagline, complete and unchanged |
+| `icon` | The catalog entry's light-page icon: the skill mark in its dark appearance, which keeps its edge on the light canvas |
 
-Cards are rendered by `github-readme-design`'s `render_social.py`, which embeds
-raster icons byte for byte. Each card recipe copies the `social-preview-*`
-colors and the faces of the `social-preview-*` typography, and records this
-file's digest. Sources and exports live in `Brand/Social/`.
+Each repository commits its card at
+`.github/assets/social-preview/social-preview.png`, and its presentation check
+compares it with a fresh render from this file at the pinned standard.
 
 ## Do's and Don'ts
 

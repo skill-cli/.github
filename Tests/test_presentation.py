@@ -10,10 +10,9 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-REPOSITORY = 'skill-cli/.github'
+REPOSITORY = json.loads((ROOT / 'profile/catalog.json').read_text())['organization']['login'] + '/.github'
 WORKFLOW = (ROOT / '.github/workflows/presentation.yml').read_text()
 CI = (ROOT / '.github/workflows/ci.yml').read_text()
-FIXTURE = ROOT / 'Tests/Fixtures/Presentation'
 
 
 def step(name, workflow=WORKFLOW):
@@ -46,7 +45,7 @@ class PresentationContractTests(unittest.TestCase):
                          ['runner', 'executable-artifact', 'executable-path', 'assets'])
         self.assertIn('default: ubuntu-24.04', inputs)
         self.assertIn('default: .github/assets', inputs)
-        self.assertEqual(inputs.count('required: true'), 2)
+        self.assertEqual(inputs.count("default: ''"), 2)
         for action, version in re.findall(r'^\s+(?:- )?uses: (\S+)(?: # (\S+))?$', WORKFLOW, re.M):
             self.assertRegex(action, r'^[\w./-]+@[0-9a-f]{40}$')
             self.assertRegex(version, r'^v\d+\.\d+\.\d+$')
@@ -59,40 +58,59 @@ class PresentationContractTests(unittest.TestCase):
         for setting in ('asset: terminal', 'command: check', 'design: standard/DESIGN.md',
                         'fonts: standard/Brand/Fonts', 'assets: caller/${{ inputs.assets }}/terminal',
                         'executable: ${{ runner.temp }}/executable/${{ inputs.executable-path }}',
-                        'artifact-dir: ${{ runner.temp }}/presentation-terminal'):
+                        'artifact-dir: ${{ runner.temp }}/presentation/terminal'):
             self.assertIn(setting, terminal)
         lint = step('Lint DESIGN.md', CI)
         toolchain = re.compile(r'uses: (showxu/skills/skills/github-readme-design/scripts@[0-9a-f]{40} # v\d+\.\d+\.\d+)')
         self.assertEqual(toolchain.search(terminal)[1], toolchain.search(lint)[1])
         for setting in ('asset: design', 'command: lint', 'design: DESIGN.md'):
             self.assertIn(setting, lint)
-        archive = step('Archive regenerated terminal assets')
+        archive = step('Archive regenerated presentation assets')
         self.assertIn('if: ${{ failure() }}', archive)
-        upload = step('Upload regenerated terminal assets')
-        for setting in ('if: ${{ failure() }}', 'name: presentation-terminal',
-                        'path: ${{ runner.temp }}/presentation-terminal.tar', 'if-no-files-found: ignore'):
+        upload = step('Upload regenerated presentation assets')
+        for setting in ('if: ${{ failure() }}', 'name: presentation',
+                        'path: ${{ runner.temp }}/presentation.tar', 'if-no-files-found: ignore'):
             self.assertIn(setting, upload)
         names = re.findall(r'^      - name: (.+)$', WORKFLOW, re.M)
         self.assertEqual(names, ['Validate workflow revision', 'Check out caller',
-                                 'Check out pinned standard', 'Download executable',
-                                 'Prepare executable', 'Check terminal presentation',
-                                 'Archive regenerated terminal assets',
-                                 'Upload regenerated terminal assets'])
+                                 'Check out pinned standard', 'Resolve inputs', 'Download executable',
+                                 'Prepare executable', 'Check terminal presentation', 'Check social preview',
+                                 'Archive regenerated presentation assets',
+                                 'Upload regenerated presentation assets'])
 
-    def test_self_call_downloads_the_uploaded_fixture(self):
-        self.assertIn('  presentation:\n    needs: presentation-fixture\n'
-                      '    uses: ./.github/workflows/presentation.yml\n', CI)
-        for setting in ('runner: ubuntu-24.04', 'executable-artifact: presentation-fixture',
-                        'executable-path: demo', 'assets: Tests/Fixtures/Presentation',
-                        'name: presentation-fixture', 'path: Tests/Fixtures/Presentation/demo',
-                        'if-no-files-found: error'):
-            self.assertIn(setting, CI)
-        self.assertEqual((FIXTURE / 'demo').stat().st_mode & 0o777, 0o755)
-        recording = json.loads((FIXTURE / 'terminal/recording.json').read_text())
-        self.assertEqual(recording, {'title': 'demo', 'steps': [
-            {'command': 'demo hello', 'output': 'Hello from demo.'},
-            {'command': 'demo read message.txt', 'output': 'Presentation fixture ready.'},
-        ]})
+    def test_self_calls_use_default_organization_inputs(self):
+        jobs = CI.split('jobs:\n', 1)[1].split('  check:\n', 1)[0]
+        self.assertEqual(jobs, '  presentation:\n    uses: ./.github/workflows/presentation.yml\n'
+                         '  profile:\n    uses: ./.github/workflows/profile.yml\n')
+
+    def test_resolver_and_kind_conditions(self):
+        resolver = step('Resolve inputs')
+        for value in ('id: inputs', 'working-directory: standard',
+                      'CALLER_REPOSITORY: ${{ github.repository }}',
+                      'ASSETS: ${{ inputs.assets }}',
+                      'EXECUTABLE_ARTIFACT: ${{ inputs.executable-artifact }}',
+                      'EXECUTABLE_PATH: ${{ inputs.executable-path }}',
+                      'python3 Scripts/presentation-inputs.py --repository "$CALLER_REPOSITORY"'):
+            self.assertIn(value, resolver)
+        for name in ('Download executable', 'Prepare executable', 'Check terminal presentation'):
+            self.assertIn("if: ${{ steps.inputs.outputs.kind == 'tool' }}", step(name))
+        social = step('Check social preview')
+        self.assertIn("if: ${{ !cancelled() && steps.inputs.outcome == 'success' }}", social)
+        for value in ('asset: social-preview', 'command: check', 'design: standard/DESIGN.md',
+                      'fonts: standard/Brand/Fonts', 'catalog: standard/profile/catalog.json',
+                      'repository: ${{ steps.inputs.outputs.repository }}',
+                      'icon: ${{ steps.inputs.outputs.icon }}',
+                      'assets: caller/${{ inputs.assets }}/social-preview',
+                      'artifact-dir: ${{ runner.temp }}/presentation/social-preview'):
+            self.assertIn(value, social)
+
+    def test_every_toolchain_reference_uses_one_release_pin(self):
+        workflows = WORKFLOW + CI + (ROOT / '.github/workflows/profile.yml').read_text()
+        pins = re.findall(r'uses: (showxu/skills/skills/github-readme-design/scripts@.*)', workflows)
+        self.assertEqual(len(pins), 4)
+        self.assertEqual(set(pins), {
+            'showxu/skills/skills/github-readme-design/scripts@e5a50c34bf66264a436288f96e44db9caa305912 # v0.2.0'
+        })
 
 
 class PresentationShellTests(unittest.TestCase):
@@ -122,7 +140,7 @@ class PresentationShellTests(unittest.TestCase):
             with self.subTest(path=relative):
                 executable = self.root / 'executable' / relative
                 executable.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copyfile(FIXTURE / 'demo', executable)
+                executable.write_text('#!/bin/sh\nprintf hello\n')
                 executable.chmod(0o644)
                 result = self.run_step('Prepare executable', EXECUTABLE_PATH=relative)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -130,25 +148,29 @@ class PresentationShellTests(unittest.TestCase):
                 self.assertFalse((self.root / 'injected').exists())
 
     def test_failure_archive_preserves_modes_and_hidden_files(self):
-        regenerated = self.root / 'presentation-terminal'
+        regenerated = self.root / 'presentation/terminal'
         (regenerated / 'fixture').mkdir(parents=True)
         (regenerated / 'script.yml').write_text('title: demo\n')
         (regenerated / 'fixture/.config').write_text('hidden\n')
         helper = regenerated / 'fixture/helper'
         helper.write_text('#!/bin/sh\n')
         helper.chmod(0o755)
-        result = self.run_step('Archive regenerated terminal assets')
+        social = self.root / 'presentation/social-preview'
+        social.mkdir()
+        (social / 'social-preview.png').write_bytes(b'png')
+        result = self.run_step('Archive regenerated presentation assets')
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        with tarfile.open(self.root / 'presentation-terminal.tar') as archive:
+        with tarfile.open(self.root / 'presentation.tar') as archive:
             members = {member.name.removeprefix('./'): member for member in archive.getmembers()}
-        self.assertIn('script.yml', members)
-        self.assertIn('fixture/.config', members)
-        self.assertEqual(members['fixture/helper'].mode & 0o777, 0o755)
+        self.assertIn('social-preview/social-preview.png', members)
+        self.assertIn('terminal/script.yml', members)
+        self.assertIn('terminal/fixture/.config', members)
+        self.assertEqual(members['terminal/fixture/helper'].mode & 0o777, 0o755)
 
     def test_failure_archive_is_skipped_without_regenerated_files(self):
-        result = self.run_step('Archive regenerated terminal assets')
+        result = self.run_step('Archive regenerated presentation assets')
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertFalse((self.root / 'presentation-terminal.tar').exists())
+        self.assertFalse((self.root / 'presentation.tar').exists())
 
     def test_invalid_executable_paths_fail_before_chmod(self):
         outside = self.root / 'outside'

@@ -15,28 +15,10 @@ permissions:
   contents: read
 
 jobs:
-  presentation-fixture:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: presentation-fixture
-          path: Tests/Fixtures/Presentation/demo
-          if-no-files-found: error
   presentation:
-    needs: presentation-fixture
     uses: ./.github/workflows/presentation.yml
-    with:
-      runner: ubuntu-24.04
-      executable-artifact: presentation-fixture
-      executable-path: demo
-      assets: Tests/Fixtures/Presentation
+  profile:
+    uses: ./.github/workflows/profile.yml
   check:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -47,7 +29,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Lint DESIGN.md
-        uses: showxu/skills/skills/github-readme-design/scripts@ca4eee1bf838cfa81fa6de3912270c74e47c3e76 # v0.1.0
+        uses: showxu/skills/skills/github-readme-design/scripts@e5a50c34bf66264a436288f96e44db9caa305912 # v0.2.0
         with:
           asset: design
           command: lint

@@ -1,0 +1,112 @@
+name: Shared profile check
+
+on:
+  workflow_call:
+    inputs:
+      mode:
+        description: Profile mode (public or member)
+        type: string
+        default: public
+      member:
+        description: Member input path relative to the caller checkout
+        type: string
+        default: profile/member.json
+      output:
+        description: Generated profile path relative to the caller checkout
+        type: string
+        default: profile/README.md
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shared-profile-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  profile:
+    name: profile
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Validate workflow revision
+        env:
+          STANDARD_SHA: ${{ job.workflow_sha }}
+        run: |
+          if [[ ! "$STANDARD_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::GitHub did not provide the reusable workflow commit SHA"
+            exit 1
+          fi
+      - name: Validate profile inputs
+        env:
+          PROFILE_MODE: ${{ inputs.mode }}
+          PROFILE_MEMBER: ${{ inputs.member }}
+          PROFILE_OUTPUT: ${{ inputs.output }}
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import PurePosixPath
+
+          if os.environ["PROFILE_MODE"] not in ("public", "member"):
+              raise SystemExit("mode must be public or member")
+          for name in ("PROFILE_MEMBER", "PROFILE_OUTPUT"):
+              value = os.environ[name]
+              path = PurePosixPath(value)
+              if (not value or path.is_absolute() or ".." in path.parts or "\\" in value
+                      or any(not character.isprintable() for character in value)):
+                  raise SystemExit(f"{name.lower()} must be a relative path without .. segments")
+          PY
+      - name: Check out caller
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: caller
+          persist-credentials: false
+      - name: Check out pinned standard
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: skill-cli/.github
+          ref: ${{ job.workflow_sha }}
+          path: standard
+          persist-credentials: false
+      - name: Validate profile paths
+        env:
+          PROFILE_MODE: ${{ inputs.mode }}
+          PROFILE_MEMBER: ${{ inputs.member }}
+          PROFILE_OUTPUT: ${{ inputs.output }}
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          caller = Path("caller").resolve()
+          names = ["PROFILE_OUTPUT"]
+          if os.environ["PROFILE_MODE"] == "member":
+              names.append("PROFILE_MEMBER")
+          for name in names:
+              if not (caller / os.environ[name]).resolve().is_relative_to(caller):
+                  raise SystemExit(f"{name.lower()} must stay inside the caller checkout")
+          PY
+      - name: Check profile
+        uses: showxu/skills/skills/github-readme-design/scripts@e5a50c34bf66264a436288f96e44db9caa305912 # v0.2.0
+        with:
+          asset: profile
+          command: check
+          design: standard/DESIGN.md
+          catalog: standard/profile/catalog.json
+          mode: ${{ inputs.mode }}
+          member: ${{ inputs.mode == 'member' && format('caller/{0}', inputs.member) || '' }}
+          catalog-revision: ${{ inputs.mode == 'member' && job.workflow_sha || '' }}
+          output: caller/${{ inputs.output }}
+          artifact-dir: ${{ runner.temp }}/profile
+      - name: Upload regenerated profile
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: profile
+          path: ${{ runner.temp }}/profile
+          if-no-files-found: ignore
