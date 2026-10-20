@@ -108,9 +108,9 @@ repository renders from this catalog at a pinned revision.
 
 `DESIGN.md` stores visual tokens in Google's DESIGN.md front matter and its icon
 entry in Iconography. Read it before visual or asset work. After editing it,
-use the toolchain at `1b72bb9e104586267d0fbdd333df80a26fc81cc0` (`v0.1.0`) in
+use the toolchain at `ca4eee1bf838cfa81fa6de3912270c74e47c3e76` (`v0.1.0`) in
 `.build/presentation-toolchain`, obtained using its
-[local regeneration instructions](https://github.com/showxu/skills/blob/1b72bb9e104586267d0fbdd333df80a26fc81cc0/skills/github-readme-design/references/renderers.md#local-regeneration). Use the Node version in the
+[local regeneration instructions](https://github.com/showxu/skills/blob/ca4eee1bf838cfa81fa6de3912270c74e47c3e76/skills/github-readme-design/references/renderers.md#local-regeneration). Use the Node version in the
 copied `.node-version`, then run:
 
 ```sh

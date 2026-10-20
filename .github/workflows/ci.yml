@@ -47,7 +47,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Lint DESIGN.md
-        uses: showxu/skills/skills/github-readme-design/scripts@1b72bb9e104586267d0fbdd333df80a26fc81cc0 # v0.1.0
+        uses: showxu/skills/skills/github-readme-design/scripts@ca4eee1bf838cfa81fa6de3912270c74e47c3e76 # v0.1.0
         with:
           asset: design
           command: lint

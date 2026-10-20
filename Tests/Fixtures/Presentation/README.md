@@ -13,8 +13,8 @@ as `presentation-terminal.tar` and uploaded as artifact `presentation-terminal`.
 member adoption requires a real CLI build and re-recording on its build OS.
 
 Generate from the repository root with Node 24.22.0 and the toolchain at
-`1b72bb9e104586267d0fbdd333df80a26fc81cc0` (`v0.1.0`), obtained in
-`.build/presentation-toolchain` using its [local regeneration instructions](https://github.com/showxu/skills/blob/1b72bb9e104586267d0fbdd333df80a26fc81cc0/skills/github-readme-design/references/renderers.md#local-regeneration):
+`ca4eee1bf838cfa81fa6de3912270c74e47c3e76` (`v0.1.0`), obtained in
+`.build/presentation-toolchain` using its [local regeneration instructions](https://github.com/showxu/skills/blob/ca4eee1bf838cfa81fa6de3912270c74e47c3e76/skills/github-readme-design/references/renderers.md#local-regeneration):
 
 ```sh
 toolchain_dir="$PWD/.build/presentation-toolchain"
