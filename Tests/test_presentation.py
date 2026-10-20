@@ -4,6 +4,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import tarfile
 import textwrap
 import unittest
 
@@ -65,15 +66,17 @@ class PresentationContractTests(unittest.TestCase):
         self.assertEqual(toolchain.search(terminal)[1], toolchain.search(lint)[1])
         for setting in ('asset: design', 'command: lint', 'design: DESIGN.md'):
             self.assertIn(setting, lint)
+        archive = step('Archive regenerated terminal assets')
+        self.assertIn('if: ${{ failure() }}', archive)
         upload = step('Upload regenerated terminal assets')
         for setting in ('if: ${{ failure() }}', 'name: presentation-terminal',
-                        'path: ${{ runner.temp }}/presentation-terminal', 'if-no-files-found: ignore',
-                        'include-hidden-files: true'):
+                        'path: ${{ runner.temp }}/presentation-terminal.tar', 'if-no-files-found: ignore'):
             self.assertIn(setting, upload)
         names = re.findall(r'^      - name: (.+)$', WORKFLOW, re.M)
         self.assertEqual(names, ['Validate workflow revision', 'Check out caller',
                                  'Check out pinned standard', 'Download executable',
                                  'Prepare executable', 'Check terminal presentation',
+                                 'Archive regenerated terminal assets',
                                  'Upload regenerated terminal assets'])
 
     def test_self_call_downloads_the_uploaded_fixture(self):
@@ -125,6 +128,27 @@ class PresentationShellTests(unittest.TestCase):
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
                 self.assertTrue(os.access(executable, os.X_OK))
                 self.assertFalse((self.root / 'injected').exists())
+
+    def test_failure_archive_preserves_modes_and_hidden_files(self):
+        regenerated = self.root / 'presentation-terminal'
+        (regenerated / 'fixture').mkdir(parents=True)
+        (regenerated / 'script.yml').write_text('title: demo\n')
+        (regenerated / 'fixture/.config').write_text('hidden\n')
+        helper = regenerated / 'fixture/helper'
+        helper.write_text('#!/bin/sh\n')
+        helper.chmod(0o755)
+        result = self.run_step('Archive regenerated terminal assets')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        with tarfile.open(self.root / 'presentation-terminal.tar') as archive:
+            members = {member.name.removeprefix('./'): member for member in archive.getmembers()}
+        self.assertIn('script.yml', members)
+        self.assertIn('fixture/.config', members)
+        self.assertEqual(members['fixture/helper'].mode & 0o777, 0o755)
+
+    def test_failure_archive_is_skipped_without_regenerated_files(self):
+        result = self.run_step('Archive regenerated terminal assets')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertFalse((self.root / 'presentation-terminal.tar').exists())
 
     def test_invalid_executable_paths_fail_before_chmod(self):
         outside = self.root / 'outside'

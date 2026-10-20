@@ -86,11 +86,16 @@ jobs:
           assets: caller/${{ inputs.assets }}/terminal
           executable: ${{ runner.temp }}/executable/${{ inputs.executable-path }}
           artifact-dir: ${{ runner.temp }}/presentation-terminal
+      - name: Archive regenerated terminal assets
+        if: ${{ failure() }}
+        run: |
+          if [[ -d "$RUNNER_TEMP/presentation-terminal" ]]; then
+            tar -C "$RUNNER_TEMP/presentation-terminal" -cf "$RUNNER_TEMP/presentation-terminal.tar" .
+          fi
       - name: Upload regenerated terminal assets
         if: ${{ failure() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: presentation-terminal
-          path: ${{ runner.temp }}/presentation-terminal
+          path: ${{ runner.temp }}/presentation-terminal.tar
           if-no-files-found: ignore
-          include-hidden-files: true

@@ -8,8 +8,8 @@ CI uploads `demo` as `presentation-fixture` and calls this repository's
 reusable presentation workflow on `ubuntu-24.04`. The workflow downloads the
 executable, restores its execute bit, re-records the script and compares
 `terminal/recording.json`, `terminal/terminal-light.svg` and
-`terminal/terminal-dark.svg` byte for byte. Regenerated files are uploaded as
-`presentation-terminal` on drift. This self-test exercises the workflow;
+`terminal/terminal-dark.svg` byte for byte. On drift, the regenerated directory is archived
+as `presentation-terminal.tar` and uploaded as artifact `presentation-terminal`. This self-test exercises the workflow;
 member adoption requires a real CLI build and re-recording on its build OS.
 
 Generate from the repository root with Node 24.22.0 and the toolchain at

@@ -75,7 +75,8 @@ it. Keep the caller job ID `presentation` for the context
 The workflow re-records `<assets>/terminal/script.yml`, then compares its
 `recording.json`, `terminal-light.svg` and `terminal-dark.svg`. The toolchain
 Action is pinned by this standard; DESIGN and fonts come from this repository
-at `job.workflow_sha`. Drift fails the job and uploads commit-ready files as
+at `job.workflow_sha`. Drift fails the job and uploads the commit-ready directory as
+`presentation-terminal.tar` (file modes preserved) in artifact
 `presentation-terminal`. CI exercises this contract with the executable and
 assets in [Tests/Fixtures/Presentation](Tests/Fixtures/Presentation/README.md).
 DESIGN lint uses the same Action and parser lockfile. Standard tags follow
