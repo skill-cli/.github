@@ -8,7 +8,7 @@ contexts and tag protection patterns.
 
 | Repository | Version source | Release tag | Release owner/checklist |
 | --- | --- | --- | --- |
-| `skill-cli/.github` | Commit SHA | None | This repository's README |
+| `skill-cli/.github` | Git tag | `vX.Y.Z` | This repository's README |
 | `skill-cli/cli` | `BuildInfo.version` in `Sources/CLI/EntryPoint.swift` | `vX.Y.Z` | [skill release checklist](https://github.com/skill-cli/cli/blob/master/Documentation/Reference/Release.md) |
 | `skill-cli/homebrew-tap` | Upstream CLI version in each formula | None of its own | [skill tap](https://github.com/skill-cli/homebrew-tap#readme); formula validation in the skill checklist |
 
