@@ -32,7 +32,7 @@ jobs:
           report = json.load(open(sys.argv[1]))
           for finding in report["findings"]:
               if finding["severity"] in ("error", "warning"):
-                  print(f"::error file=DESIGN.md::{finding.get('path', '')} {finding['rule']}: {finding['message']}")
+                  print(f"::error file=DESIGN.md::{finding.get('path', '')} {finding.get('rule', 'lint')}: {finding.get('message', '')}")
           summary = report["summary"]
           sys.exit(1 if summary["errors"] or summary["warnings"] else 0)
           PY
