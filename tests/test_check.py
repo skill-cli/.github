@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def load_script(name, filename):
-    loader = importlib.machinery.SourceFileLoader(name, str(ROOT / "Scripts" / filename))
+    loader = importlib.machinery.SourceFileLoader(name, str(ROOT / "scripts" / filename))
     spec = importlib.util.spec_from_loader(name, loader)
     module = importlib.util.module_from_spec(spec)
     loader.exec_module(module)

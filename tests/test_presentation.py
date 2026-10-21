@@ -60,7 +60,7 @@ class PresentationContractTests(unittest.TestCase):
         self.assertIn('path: ${{ runner.temp }}/executable', download)
         terminal = step('Check terminal presentation')
         for setting in ('asset: terminal', 'command: check', 'design: standard/DESIGN.md',
-                        'fonts: standard/Brand/Fonts', 'assets: caller/${{ inputs.assets }}/terminal',
+                        'fonts: standard/.github/design/fonts', 'assets: caller/${{ inputs.assets }}/terminal',
                         'executable: ${{ runner.temp }}/executable/${{ inputs.executable-path }}',
                         'artifact-dir: ${{ runner.temp }}/presentation/terminal'):
             self.assertIn(setting, terminal)
@@ -94,14 +94,14 @@ class PresentationContractTests(unittest.TestCase):
                       'ASSETS: ${{ inputs.assets }}',
                       'EXECUTABLE_ARTIFACT: ${{ inputs.executable-artifact }}',
                       'EXECUTABLE_PATH: ${{ inputs.executable-path }}',
-                      'python3 Scripts/presentation-inputs.py --repository "$CALLER_REPOSITORY"'):
+                      'python3 scripts/presentation-inputs.py --repository "$CALLER_REPOSITORY"'):
             self.assertIn(value, resolver)
         for name in ('Download executable', 'Prepare executable', 'Check terminal presentation'):
             self.assertIn("if: ${{ steps.inputs.outputs.kind == 'tool' }}", step(name))
         social = step('Check social preview')
         self.assertIn("if: ${{ !cancelled() && steps.inputs.outcome == 'success' }}", social)
         for value in ('asset: social-preview', 'command: check', 'design: standard/DESIGN.md',
-                      'fonts: standard/Brand/Fonts', 'catalog: standard/profile/catalog.json',
+                      'fonts: standard/.github/design/fonts', 'catalog: standard/profile/catalog.json',
                       'repository: ${{ steps.inputs.outputs.repository }}',
                       'icon: ${{ steps.inputs.outputs.icon }}',
                       'assets: caller/${{ inputs.assets }}/social-preview',
@@ -113,7 +113,7 @@ class PresentationContractTests(unittest.TestCase):
         pins = re.findall(r'uses: (showxu/skills/skills/github-readme-design/scripts@.*)', workflows)
         self.assertEqual(len(pins), 4)
         self.assertEqual(set(pins), {
-            'showxu/skills/skills/github-readme-design/scripts@e5a50c34bf66264a436288f96e44db9caa305912'
+            'showxu/skills/skills/github-readme-design/scripts@7a983a1599135176e632dc4c9f5784972bfb27de # v0.2.0'
         })
 
 

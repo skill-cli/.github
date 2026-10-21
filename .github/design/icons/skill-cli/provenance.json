@@ -1,0 +1,40 @@
+{
+  "icon": "skill-cli",
+  "skill": "apple-app-icon-design",
+  "skill_commit": "968d45d906fd3ba67367abcaeb5b95621ea52224",
+  "command": "python3 -B <skills>/skills/apple-app-icon-design/scripts/app_icons.py DESIGN.md --name skill-cli --style liquid-glass --out <scratch> --ictool <Icon Composer ictool>",
+  "renderer": "ictool bundle-version 129, short 27.0",
+  "verified_at": "2026-10-21",
+  "copies": [
+    {
+      "repository": "skill-cli/.github",
+      "path": "profile/assets/icon.png",
+      "output": "web/icon-512.png",
+      "sha256": "ca2bdc90da14e546cbdf760d05c34ba3ab310f6911039fbcbd7ac02b0e694d24"
+    },
+    {
+      "repository": "skill-cli/.github",
+      "path": "profile/assets/icon-dark.png",
+      "output": "web/dark/icon-512.png",
+      "sha256": "b412e0ea3ce90b8742bed9aec2885f5ff48c39ffd08f01ee24f954daaafbf395"
+    },
+    {
+      "repository": "skill-cli/.github",
+      "path": "profile/assets/avatar.png",
+      "output": "web/avatar-1024.png",
+      "sha256": "13df50c076ae2eab9a3bc369b79118c6cc25da5ec52440aa2ce780c52ba12b32"
+    },
+    {
+      "repository": "skill-cli/cli",
+      "path": ".github/assets/logo/logo-light.png",
+      "output": "web/dark/icon-512.png",
+      "sha256": "b412e0ea3ce90b8742bed9aec2885f5ff48c39ffd08f01ee24f954daaafbf395"
+    },
+    {
+      "repository": "skill-cli/cli",
+      "path": ".github/assets/logo/logo-dark.png",
+      "output": "web/icon-512.png",
+      "sha256": "ca2bdc90da14e546cbdf760d05c34ba3ab310f6911039fbcbd7ac02b0e694d24"
+    }
+  ]
+}

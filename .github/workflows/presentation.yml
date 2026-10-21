@@ -67,7 +67,7 @@ jobs:
           EXECUTABLE_ARTIFACT: ${{ inputs.executable-artifact }}
           EXECUTABLE_PATH: ${{ inputs.executable-path }}
         run: |
-          python3 Scripts/presentation-inputs.py --repository "$CALLER_REPOSITORY" \
+          python3 scripts/presentation-inputs.py --repository "$CALLER_REPOSITORY" \
             --assets "$ASSETS" --executable-artifact "$EXECUTABLE_ARTIFACT" \
             --executable-path "$EXECUTABLE_PATH"
       - name: Download executable
@@ -92,23 +92,23 @@ jobs:
           chmod +x "$RUNNER_TEMP/executable/$EXECUTABLE_PATH"
       - name: Check terminal presentation
         if: ${{ steps.inputs.outputs.kind == 'tool' }}
-        uses: showxu/skills/skills/github-readme-design/scripts@e5a50c34bf66264a436288f96e44db9caa305912
+        uses: showxu/skills/skills/github-readme-design/scripts@7a983a1599135176e632dc4c9f5784972bfb27de # v0.2.0
         with:
           asset: terminal
           command: check
           design: standard/DESIGN.md
-          fonts: standard/Brand/Fonts
+          fonts: standard/.github/design/fonts
           assets: caller/${{ inputs.assets }}/terminal
           executable: ${{ runner.temp }}/executable/${{ inputs.executable-path }}
           artifact-dir: ${{ runner.temp }}/presentation/terminal
       - name: Check social preview
         if: ${{ !cancelled() && steps.inputs.outcome == 'success' }}
-        uses: showxu/skills/skills/github-readme-design/scripts@e5a50c34bf66264a436288f96e44db9caa305912
+        uses: showxu/skills/skills/github-readme-design/scripts@7a983a1599135176e632dc4c9f5784972bfb27de # v0.2.0
         with:
           asset: social-preview
           command: check
           design: standard/DESIGN.md
-          fonts: standard/Brand/Fonts
+          fonts: standard/.github/design/fonts
           catalog: standard/profile/catalog.json
           repository: ${{ steps.inputs.outputs.repository }}
           icon: ${{ steps.inputs.outputs.icon }}
