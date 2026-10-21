@@ -29,13 +29,13 @@ jobs:
         with:
           persist-credentials: false
       - name: Lint DESIGN.md
-        uses: showxu/skills/skills/github-readme-design/scripts@e5a50c34bf66264a436288f96e44db9caa305912
+        uses: showxu/skills/skills/github-readme-design/scripts@7a983a1599135176e632dc4c9f5784972bfb27de # v0.2.0
         with:
           asset: design
           command: lint
           design: DESIGN.md
-      - run: python3 -m unittest discover -s Tests
-      - run: python3 Scripts/check --public
+      - run: python3 -m unittest discover -s tests
+      - run: python3 scripts/check --public
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: git diff --check

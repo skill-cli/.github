@@ -17,5 +17,5 @@ resolved to exact versions, and maintains its Homebrew distribution tap.
 
 ## Decision Records
 
-Durable decisions live in each repository's `Documentation/Decisions/`.
+Durable decisions live in each repository's documentation decision records.
 Architecture documentation describes the current state.

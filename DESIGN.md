@@ -171,13 +171,13 @@ monospaced so output keeps its column grid; titles, labels and body text are
 set proportional, which reads more compactly at display sizes.
 
 Rendered lettering, terminal sessions included, is converted to glyph outlines
-from `Brand/Fonts/GoogleSansCode[MONO,wght].ttf`, so every reader sees the same
-letterforms and widths whatever fonts they have installed. The font is
+from `.github/design/fonts/GoogleSansCode[MONO,wght].ttf`, so every reader sees
+the same letterforms and widths whatever fonts they have installed. The font is
 Google Sans Code v7.001 from the
 [googlefonts/googlesans-code](https://github.com/googlefonts/googlesans-code)
 release archive (SHA-256
 `eebba2a438882396e8530cad6d6cb80182b0afb6e9e0ad07b7340359a53ba2e9`), licensed
-under the SIL Open Font License 1.1 (`Brand/Fonts/OFL.txt`).
+under the SIL Open Font License 1.1 (`.github/design/fonts/OFL.txt`).
 
 ## Layout
 
@@ -297,14 +297,14 @@ compares it with a fresh render from this file at the pinned standard.
           },
           "layers": [
             {
-              "source": "Brand/Icon/spirit-a.svg",
+              "source": ".github/design/icons/skill-cli/layers/spirit-a.svg",
               "name": "Spirit A",
               "fill": {
                 "automatic-gradient": "#B57AFF"
               }
             },
             {
-              "source": "Brand/Icon/spirit-b.svg",
+              "source": ".github/design/icons/skill-cli/layers/spirit-b.svg",
               "name": "Spirit B",
               "fill": {
                 "automatic-gradient": "#FF7AD6"
@@ -327,7 +327,7 @@ compares it with a fresh render from this file at the pinned standard.
           },
           "layers": [
             {
-              "source": "Brand/Icon/bloom-outer.svg",
+              "source": ".github/design/icons/skill-cli/layers/bloom-outer.svg",
               "name": "Bloom outer",
               "fill": {
                 "solid": "#FFFFFF"
@@ -335,7 +335,7 @@ compares it with a fresh render from this file at the pinned standard.
               "opacity": 0.32
             },
             {
-              "source": "Brand/Icon/bloom-inner.svg",
+              "source": ".github/design/icons/skill-cli/layers/bloom-inner.svg",
               "name": "Bloom inner",
               "fill": {
                 "solid": "#FFFFFF"
@@ -343,7 +343,7 @@ compares it with a fresh render from this file at the pinned standard.
               "opacity": 0.65
             },
             {
-              "source": "Brand/Icon/bloom-core.svg",
+              "source": ".github/design/icons/skill-cli/layers/bloom-core.svg",
               "name": "Bloom core",
               "fill": {
                 "solid": "#FFFFFF"
@@ -370,7 +370,7 @@ compares it with a fresh render from this file at the pinned standard.
           },
           "layers": [
             {
-              "source": "Brand/Icon/shell.svg",
+              "source": ".github/design/icons/skill-cli/layers/shell.svg",
               "name": "Shell",
               "fill": {
                 "automatic-gradient": "#1A1F5C"
@@ -396,7 +396,7 @@ compares it with a fresh render from this file at the pinned standard.
           },
           "layers": [
             {
-              "source": "Brand/Icon/star.svg",
+              "source": ".github/design/icons/skill-cli/layers/star.svg",
               "name": "Ghost",
               "fill": {
                 "automatic-gradient": "#FFFFFF"
@@ -423,7 +423,7 @@ compares it with a fresh render from this file at the pinned standard.
 
 | Output | Path |
 | --- | --- |
-| Icon Composer document | `Brand/Exports/skill-cli/skill-cli.icon` |
+| Icon provenance and regeneration | `.github/design/icons/skill-cli/provenance.json` |
 | Organization avatar, 1024 px | `profile/assets/avatar.png` |
 | Profile mark on dark pages, 512 px | `profile/assets/icon.png` |
 | Profile mark on light pages (Dark appearance), 512 px | `profile/assets/icon-dark.png` |

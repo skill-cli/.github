@@ -24,6 +24,6 @@ when preparing a release.
   the pull-request title becomes the commit subject.
 
 Maintainers review changes before merging. Durable decisions belong in the
-affected repository's `Documentation/Decisions/`. See the organization's
+affected repository's documentation decision records. See the organization's
 [governance](https://github.com/skill-cli/.github/blob/master/GOVERNANCE.md)
 for project scope and maintainer responsibilities.

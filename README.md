@@ -19,9 +19,11 @@ and development notes, including the CLI's repository-specific instructions.
 | `profile/README.md` | Organization profile, generated from the catalog |
 | `profile/assets/` | Organization avatar and profile mark |
 | `DESIGN.md` | Visual tokens in Google's DESIGN.md format and the app icon entry |
-| `Brand/Icon/` | Icon layer artwork |
-| `Brand/Exports/skill-cli/` | Icon Composer document generated from the app icon entry |
-| `Scripts/` | Presentation input resolver, family settings adapter and read-only repository checks |
+| `.github/design/icons/skill-cli/layers/` | Icon layer artwork |
+| `.github/design/icons/*/provenance.json` | Verified icon outputs, consumed copies and SHA-256 digests |
+| `.github/design/fonts/` | Variable font and its upstream license |
+| `scripts/` | Presentation input resolver, family settings adapter and read-only repository checks |
+| `tests/` | Workflow, input resolver, provenance, adoption and repository metadata tests |
 | `MAINTENANCE.md` | Family adoption, member contexts, legacy commits and advisory review |
 | `VERSIONING.md` | Family versioning reference, member release values and legacy tags |
 | `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, `SECURITY.md`, `SUPPORT.md` | Organization community defaults |
@@ -32,10 +34,10 @@ and development notes, including the CLI's repository-specific instructions.
 ## Validate the standard
 
 ```sh
-python3 -m unittest discover -s Tests
-python3 Scripts/check --offline
-python3 Scripts/check --public
-python3 Scripts/check
+python3 -m unittest discover -s tests
+python3 scripts/check --offline
+python3 scripts/check --public
+python3 scripts/check
 ```
 
 Offline checks read catalog membership fields and validate the member
@@ -45,7 +47,7 @@ profile workflow validates the catalog and generated profile. The default
 online mode requires an authenticated `gh` session with read access to settings
 for the declared skill-cli members.
 
-The online check reads `Scripts/settings.py` and `MAINTENANCE.md` directly from
+The online check reads `scripts/settings.py` and `MAINTENANCE.md` directly from
 the reviewed family revision in the adoption declaration. It reuses that
 unmodified checker, selects only skill-cli members, verifies their declared
 contexts/tag patterns, and compares merge settings, token defaults, full
@@ -57,7 +59,7 @@ for conformance, 1 for drift/local failure and 2 for unknown observations.
 Offline and public modes do not establish settings conformance.
 
 Follow the family's
-[workflow integration guide](https://github.com/agents-tools/.github/blob/f3b06f79f0125e5cd727854a757f34d7b5e896f4/Documentation/Reference/WorkflowIntegration.md)
+[workflow integration guide](https://github.com/agents-tools/.github/blob/33cf243386ed5742fc300a119d58e768c8ba6caf/docs/reference/workflow-integration.md)
 when updating pins or activating protection. Update `standard_revision` and
 the policy caller together. The CI and policy workflows run on branch pushes so adoption
 can be validated before opening a pull request; their required contexts are
@@ -73,8 +75,9 @@ none. Its inputs are `runner` (default `ubuntu-24.04`),
 
 | Kind | Assets | Executable inputs |
 | --- | --- | --- |
-| `tool` | `terminal`, `social-preview` | Both required |
-| `library`, `app`, `distribution`, organization `.github` | `social-preview` | Both rejected |
+| `tool` | `logo`, `terminal`, `social-preview` | Both required |
+| `library`, `app` | `logo`, `social-preview` | Both rejected |
+| `distribution`, organization `.github` | `social-preview` | Both rejected |
 | `website` | None; calling the workflow fails | Not applicable |
 
 A tool uploads its built executable in a preceding job and passes that
@@ -82,10 +85,16 @@ artifact and the same runner OS to `presentation`. A library, app or
 distribution calls without executable inputs. The workflow rejects an owner
 other than the catalog organization, an unlisted repository, missing expected
 asset directories and a terminal directory for a kind without terminal.
+Tools, libraries and apps require a `logo/` directory under the asset root.
+Distributions, websites and the organization use standard icons and reject a
+`logo/` directory. Every caller-owned catalog icon, including both appearance
+variants, must match a repository, path and SHA-256 entry in the standard's
+`.github/design/icons/*/provenance.json`; failures name the file.
 DESIGN, fonts and catalog come from this standard at `job.workflow_sha`.
-The icon is the catalog's light-page raw GitHub HEAD URL, resolved to the
+Catalog icons use raw GitHub HEAD URLs, resolved to the
 caller checkout or this standard's `.github` checkout; other hosts, owners,
-repositories, refs, queries, fragments and escaping paths fail.
+repositories, refs, queries, fragments and escaping paths fail. The light-page
+icon is the rendering input.
 
 The terminal check records the real executable and compares its recording and
 both SVGs; the social preview check compares the PNG. Failure artifact
@@ -136,7 +145,7 @@ The organization also declares its own `.github` repository's `about`.
 Marks and icons may select light and dark images.
 
 The profile workflow owns catalog validation and compares the generated
-profile byte for byte. `Scripts/check` reads membership fields and compares
+profile byte for byte. `scripts/check` reads membership fields and compares
 membership and every `about` with GitHub in online and public modes; it lists
 all description differences together. Offline mode skips these live checks.
 The private `.github-private` dashboard uses the catalog and DESIGN at its
@@ -148,12 +157,12 @@ pinned profile workflow revision, with operational values in
 `DESIGN.md` owns the visual tokens in Google's DESIGN.md front matter and the
 icon entries. Read it before visual or asset work. The same pinned TypeScript
 toolchain lints DESIGN and renders profiles, social previews and terminals. Use
-the package at `e5a50c34bf66264a436288f96e44db9caa305912` in the
+the package at `7a983a1599135176e632dc4c9f5784972bfb27de` (`v0.2.0`) in the
 ignored `.build/presentation-toolchain`, following its [local regeneration
-contract](https://github.com/showxu/skills/blob/e5a50c34bf66264a436288f96e44db9caa305912/skills/github-readme-design/references/renderers.md#local-regeneration):
+contract](https://github.com/showxu/skills/blob/7a983a1599135176e632dc4c9f5784972bfb27de/skills/github-readme-design/references/renderers.md#local-regeneration):
 
 ```sh
-toolchain_commit='e5a50c34bf66264a436288f96e44db9caa305912'
+toolchain_commit='7a983a1599135176e632dc4c9f5784972bfb27de' # v0.2.0
 toolchain_dir="$PWD/.build/presentation-toolchain"
 mkdir -p "$toolchain_dir"
 curl -fsSL "https://api.github.com/repos/showxu/skills/tarball/$toolchain_commit" \
@@ -171,11 +180,11 @@ node "$toolchain_dir/src/cli.ts" profile render \
 node "$toolchain_dir/src/cli.ts" profile check \
   --design DESIGN.md --catalog profile/catalog.json --out profile/README.md
 node "$toolchain_dir/src/cli.ts" social-preview render \
-  --design DESIGN.md --fonts Brand/Fonts --catalog profile/catalog.json \
+  --design DESIGN.md --fonts .github/design/fonts --catalog profile/catalog.json \
   --repository .github --icon profile/assets/icon-dark.png \
   --out .github/assets/social-preview/social-preview.png
 node "$toolchain_dir/src/cli.ts" social-preview check \
-  --design DESIGN.md --fonts Brand/Fonts --catalog profile/catalog.json \
+  --design DESIGN.md --fonts .github/design/fonts --catalog profile/catalog.json \
   --repository .github --icon profile/assets/icon-dark.png \
   --assets .github/assets/social-preview
 ```
@@ -199,8 +208,8 @@ from the [apple-app-icon-design](https://github.com/showxu/skills/tree/master/sk
 skill. Native Liquid Glass rendering needs macOS with Xcode's Icon Composer
 and `rsvg-convert`.
 
-Edit the entry or the artwork in `Brand/Icon/`, then run, with `APP_ICONS`
-set to that `app_icons.py`:
+Edit the entry or the artwork in `.github/design/icons/skill-cli/layers/`, then
+run with `APP_ICONS` set to that `app_icons.py`:
 
 ```sh
 python3 "$APP_ICONS" DESIGN.md --name skill-cli --lint
@@ -210,17 +219,41 @@ python3 "$APP_ICONS" DESIGN.md --name skill-cli --style liquid-glass --out .buil
 ```
 
 Review `.build/icon/contact-sheet.png` and open the generated `.icon` in Icon
-Composer, then replace the committed outputs:
+Composer. The document stays in ignored scratch. Copy the consumed outputs
+to their owners:
 
-| Generated | Committed |
+| Generated | Consumed copy |
 | --- | --- |
-| `.build/icon-document/` | `Brand/Exports/skill-cli/` |
 | `.build/icon/web/avatar-1024.png` | `profile/assets/avatar.png` |
 | `.build/icon/web/icon-512.png` | `profile/assets/icon.png` |
 | `.build/icon/web/dark/icon-512.png` | `profile/assets/icon-dark.png` |
+| `.build/icon/web/dark/icon-512.png` | `.github/assets/logo/logo-light.png` in skill-cli/cli |
+| `.build/icon/web/icon-512.png` | `.github/assets/logo/logo-dark.png` in skill-cli/cli |
 
-`python3 "$APP_ICONS" DESIGN.md --name skill-cli --style liquid-glass --check Brand/Exports/skill-cli --document-only`
-reports any drift between the entry and the committed document.
+Record each consumed copy in `.github/design/icons/skill-cli/provenance.json`:
+its repository, path, generator output path and SHA-256, together with the
+skill name, full skill commit, exact command, renderer version and verification
+date. For a drift check, regenerate into `.build/icon` with the recorded skill
+commit and renderer, then compare the output digests with the receipt:
+
+```sh
+python3 -B - <<'PYTHON'
+import hashlib
+import json
+from pathlib import Path
+
+receipt = json.loads(Path(".github/design/icons/skill-cli/provenance.json").read_text())
+for copy in receipt["copies"]:
+    output = Path(".build/icon") / copy["output"]
+    digest = hashlib.sha256(output.read_bytes()).hexdigest()
+    if digest != copy["sha256"]:
+        raise SystemExit(f"Icon drift: {copy['repository']}: {copy['path']}")
+PYTHON
+```
+
+Repository tests compare every `profile/assets/` file with its receipt;
+member presentation checks verify each caller-owned catalog icon against the
+receipts at the pinned standard.
 
 The profile shows `icon-dark.png` (the Dark appearance) on light pages and
 `icon.png` on dark pages, so the light icon keeps its edge on GitHub's light

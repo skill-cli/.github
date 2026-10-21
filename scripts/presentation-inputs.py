@@ -2,6 +2,7 @@
 """Resolve a caller's presentation inputs from the pinned organization catalog."""
 
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path, PurePosixPath
@@ -11,9 +12,9 @@ from urllib.parse import unquote, urlsplit
 
 
 ASSETS = {
-    "tool": ("terminal", "social-preview"),
-    "library": ("social-preview",),
-    "app": ("social-preview",),
+    "tool": ("logo", "terminal", "social-preview"),
+    "library": ("logo", "social-preview"),
+    "app": ("logo", "social-preview"),
     "distribution": ("social-preview",),
     "organization": ("social-preview",),
     "website": (),
@@ -35,8 +36,18 @@ def within(root, relative, label):
     return path
 
 
-def resolve_icon(icon, organization, repository, caller, standard):
-    url = icon.get("light") if isinstance(icon, dict) else icon
+def check_provenance(path, relative, repository, standard):
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    for receipt in sorted((standard / ".github/design/icons").glob("*/provenance.json")):
+        provenance = json.loads(receipt.read_text(encoding="utf-8"))
+        for copy in provenance["copies"]:
+            if (copy["repository"] == repository and copy["path"] == relative.as_posix()
+                    and copy["sha256"] == digest):
+                return
+    raise ValueError(f"{repository}: {relative} has no matching SHA-256 provenance entry")
+
+
+def resolve_icon(url, organization, repository, caller, standard, *, standard_only=False):
     try:
         if not isinstance(url, str) or any(character.isspace() or not character.isprintable() for character in url):
             raise ValueError("expected a raw GitHub URL")
@@ -51,6 +62,8 @@ def resolve_icon(icon, organization, repository, caller, standard):
         if source == ".github":
             root = standard
         elif source == repository:
+            if standard_only:
+                raise ValueError("kind requires an icon from the standard's .github repository")
             root = caller
         else:
             raise ValueError("repository must be the caller or .github")
@@ -61,8 +74,10 @@ def resolve_icon(icon, organization, repository, caller, standard):
         resolved = str(path.resolve())
         if not resolved.isprintable():
             raise ValueError("resolved icon path contains control characters")
+        if source != ".github":
+            check_provenance(path, relative, f"{organization}/{repository}", standard)
         return resolved
-    except (OSError, UnicodeError, ValueError) as error:
+    except (OSError, UnicodeError, ValueError, KeyError, TypeError) as error:
         raise ValueError(f"invalid icon URL {url!r}: {error}") from None
 
 
@@ -84,6 +99,10 @@ def resolve(catalog, repository, *, caller, standard, assets=".github/assets",
         kind, icon = entry["kind"], entry["icon"]
         if kind not in ASSETS or kind == "organization":
             raise ValueError(f"unsupported kind {kind!r} for {repository}")
+    asset_root = within(caller, relative_path(assets, "assets"), "assets")
+    logo = asset_root / "logo"
+    if "logo" not in ASSETS[kind] and (logo.exists() or logo.is_symlink()):
+        raise ValueError(f"kind {kind} rejects logo directory: {logo}")
     if kind == "website":
         raise ValueError("kind website has no presentation assets")
     if kind == "tool":
@@ -91,17 +110,22 @@ def resolve(catalog, repository, *, caller, standard, assets=".github/assets",
             raise ValueError("kind tool requires executable-artifact and executable-path")
     elif executable_artifact or executable_path:
         raise ValueError(f"kind {kind} rejects executable-artifact and executable-path")
-    asset_root = within(caller, relative_path(assets, "assets"), "assets")
     for asset in ASSETS[kind]:
         directory = within(caller, asset_root.relative_to(caller) / asset, asset)
         if not directory.is_dir():
             raise ValueError(f"kind {kind} requires asset directory: {directory}")
     if "terminal" not in ASSETS[kind] and (asset_root / "terminal").exists():
         raise ValueError(f"kind {kind} rejects terminal directory: {asset_root / 'terminal'}")
+    variants = icon if isinstance(icon, dict) else {"light": icon}
+    resolved_icons = {
+        appearance: resolve_icon(url, organization, name, caller, standard,
+                                 standard_only="logo" not in ASSETS[kind])
+        for appearance, url in variants.items()
+    }
     return {
         "kind": kind,
         "repository": name,
-        "icon": resolve_icon(icon, organization, name, caller, standard),
+        "icon": resolved_icons["light"],
     }
 
 

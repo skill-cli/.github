@@ -90,13 +90,13 @@ def select_members(adoption, standard, checker):
 
 
 def load_standard(revision, read=read_standard):
-    source = read("Scripts/settings.py", revision)
+    source = read("scripts/settings.py", revision)
     standard = declaration_from(read("MAINTENANCE.md", revision))
     # Execute the reviewed source at the same immutable pin as the policy caller.
     # The implementation and common settings remain owned by the family standard.
     checker = types.ModuleType("agents_family_settings")
-    checker.__file__ = str(ROOT / "Scripts/family_settings.py")
-    exec(compile(source, f"{STANDARD}@{revision}/Scripts/settings.py", "exec"), checker.__dict__)
+    checker.__file__ = str(ROOT / "scripts/family_settings.py")
+    exec(compile(source, f"{STANDARD}@{revision}/scripts/settings.py", "exec"), checker.__dict__)
     return checker, standard
 
 

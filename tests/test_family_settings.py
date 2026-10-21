@@ -11,7 +11,7 @@ from urllib.error import URLError
 
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "Scripts"))
+sys.path.insert(0, str(ROOT / "scripts"))
 import family_settings as settings
 
 
@@ -134,23 +134,23 @@ class SharedCheckerTests(unittest.TestCase):
         self.assertEqual(checker.marker, 42)
         self.assertEqual(declaration, {"schema": 1})
         self.assertEqual(read.call_args_list, [
-            mock.call("Scripts/settings.py", self.adoption["standard_revision"]),
+            mock.call("scripts/settings.py", self.adoption["standard_revision"]),
             mock.call("MAINTENANCE.md", self.adoption["standard_revision"]),
         ])
 
     def test_public_standard_fetch_uses_get_without_credentials(self):
         opener = mock.Mock(return_value=io.BytesIO(b"source"))
         revision = self.adoption["standard_revision"]
-        self.assertEqual(settings.read_standard("Scripts/settings.py", revision, opener=opener), "source")
+        self.assertEqual(settings.read_standard("scripts/settings.py", revision, opener=opener), "source")
         request = opener.call_args.args[0]
         self.assertEqual(request.method, "GET")
         self.assertEqual(request.full_url,
-                         f"https://raw.githubusercontent.com/agents-tools/.github/{revision}/Scripts/settings.py")
+                         f"https://raw.githubusercontent.com/agents-tools/.github/{revision}/scripts/settings.py")
         self.assertIsNone(request.get_header("Authorization"))
 
     def test_download_failure_is_unknown_and_sanitized(self):
-        with self.assertRaisesRegex(settings.Unavailable, "^could not read pinned family standard: Scripts/settings.py$"):
-            settings.read_standard("Scripts/settings.py", self.adoption["standard_revision"],
+        with self.assertRaisesRegex(settings.Unavailable, "^could not read pinned family standard: scripts/settings.py$"):
+            settings.read_standard("scripts/settings.py", self.adoption["standard_revision"],
                                    opener=mock.Mock(side_effect=URLError("private diagnostic")))
 
 
