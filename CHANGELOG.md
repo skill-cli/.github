@@ -2,10 +2,8 @@
 
 ## Unreleased
 
-## 0.2.0
-
 - Check social previews and organization profiles with the TypeScript
-  toolchain 0.2.0. DESIGN front matter carries the social preview and profile
+  toolchain. DESIGN front matter carries the social preview and profile
   tokens, the profile workflow validates the catalog, and this repository
   commits its own social preview.
 - Choose presentation checks from each caller's catalog `kind`: tools check

@@ -48,7 +48,11 @@ class PresentationContractTests(unittest.TestCase):
         self.assertEqual(inputs.count("default: ''"), 2)
         for action, version in re.findall(r'^\s+(?:- )?uses: (\S+)(?: # (\S+))?$', WORKFLOW, re.M):
             self.assertRegex(action, r'^[\w./-]+@[0-9a-f]{40}$')
-            self.assertRegex(version, r'^v\d+\.\d+\.\d+$')
+            if action.startswith('showxu/skills/'):
+                # The toolchain is a release pin or an in-progress commit pinned by SHA alone.
+                self.assertRegex(version, r'^(v\d+\.\d+\.\d+)?$')
+            else:
+                self.assertRegex(version, r'^v\d+\.\d+\.\d+$')
 
     def test_toolchain_uses_pinned_design_and_build_artifact(self):
         download = step('Download executable')
@@ -61,7 +65,7 @@ class PresentationContractTests(unittest.TestCase):
                         'artifact-dir: ${{ runner.temp }}/presentation/terminal'):
             self.assertIn(setting, terminal)
         lint = step('Lint DESIGN.md', CI)
-        toolchain = re.compile(r'uses: (showxu/skills/skills/github-readme-design/scripts@[0-9a-f]{40} # v\d+\.\d+\.\d+)')
+        toolchain = re.compile(r'uses: (showxu/skills/skills/github-readme-design/scripts@[0-9a-f]{40}(?: # v\d+\.\d+\.\d+)?)$', re.M)
         self.assertEqual(toolchain.search(terminal)[1], toolchain.search(lint)[1])
         for setting in ('asset: design', 'command: lint', 'design: DESIGN.md'):
             self.assertIn(setting, lint)
@@ -104,12 +108,12 @@ class PresentationContractTests(unittest.TestCase):
                       'artifact-dir: ${{ runner.temp }}/presentation/social-preview'):
             self.assertIn(value, social)
 
-    def test_every_toolchain_reference_uses_one_release_pin(self):
+    def test_every_toolchain_reference_uses_one_pin(self):
         workflows = WORKFLOW + CI + (ROOT / '.github/workflows/profile.yml').read_text()
         pins = re.findall(r'uses: (showxu/skills/skills/github-readme-design/scripts@.*)', workflows)
         self.assertEqual(len(pins), 4)
         self.assertEqual(set(pins), {
-            'showxu/skills/skills/github-readme-design/scripts@e5a50c34bf66264a436288f96e44db9caa305912 # v0.2.0'
+            'showxu/skills/skills/github-readme-design/scripts@e5a50c34bf66264a436288f96e44db9caa305912'
         })
 
 

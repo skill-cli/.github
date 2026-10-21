@@ -92,7 +92,7 @@ jobs:
                   raise SystemExit(f"{name.lower()} must stay inside the caller checkout")
           PY
       - name: Check profile
-        uses: showxu/skills/skills/github-readme-design/scripts@e5a50c34bf66264a436288f96e44db9caa305912 # v0.2.0
+        uses: showxu/skills/skills/github-readme-design/scripts@e5a50c34bf66264a436288f96e44db9caa305912
         with:
           asset: profile
           command: check

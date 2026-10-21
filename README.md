@@ -57,7 +57,7 @@ for conformance, 1 for drift/local failure and 2 for unknown observations.
 Offline and public modes do not establish settings conformance.
 
 Follow the family's
-[workflow integration guide](https://github.com/agents-tools/.github/blob/1dd5eae4c47bb6063b951066989aa6c46703b946/Documentation/Reference/WorkflowIntegration.md)
+[workflow integration guide](https://github.com/agents-tools/.github/blob/457dd5679ba357b25f2407c57761b1bbf96507ad/Documentation/Reference/WorkflowIntegration.md)
 when updating pins or activating protection. Update `standard_revision` and
 the policy caller together. The CI and policy workflows run on branch pushes so adoption
 can be validated before opening a pull request; their required contexts are
@@ -65,8 +65,9 @@ can be validated before opening a pull request; their required contexts are
 
 ## Presentation and profile workflows
 
-Members pin `skill-cli/.github/.github/workflows/presentation.yml` by full SHA
-with a `# vX.Y.Z` comment. Its inputs are `runner` (default `ubuntu-24.04`),
+Members pin `skill-cli/.github/.github/workflows/presentation.yml` by full
+SHA, adding the `# vX.Y.Z` comment of a release; an unreleased commit has
+none. Its inputs are `runner` (default `ubuntu-24.04`),
 `executable-artifact` and `executable-path` (both default empty), and `assets`
 (default `.github/assets`). The catalog kind determines the checked assets:
 
@@ -108,8 +109,8 @@ jobs:
       mode: member
 ```
 
-Replace the zeros and version comment with the accepted standard commit and
-tag. Remove the `catalog` binding from `profile/member.json`; the workflow pin
+Replace the zeros with the accepted standard commit, and the version comment
+with its release version or nothing for an unreleased commit. Remove the `catalog` binding from `profile/member.json`; the workflow pin
 selects the inputs. The resulting context is `check / profile`. Update the
 member's maintenance declaration and live ruleset only after that context has
 appeared on a real run under the family's activation gate.
@@ -147,12 +148,12 @@ pinned profile workflow revision, with operational values in
 `DESIGN.md` owns the visual tokens in Google's DESIGN.md front matter and the
 icon entries. Read it before visual or asset work. The same pinned TypeScript
 toolchain lints DESIGN and renders profiles, social previews and terminals. Use
-the package at `e5a50c34bf66264a436288f96e44db9caa305912` (`v0.2.0`) in the
+the package at `e5a50c34bf66264a436288f96e44db9caa305912` in the
 ignored `.build/presentation-toolchain`, following its [local regeneration
 contract](https://github.com/showxu/skills/blob/e5a50c34bf66264a436288f96e44db9caa305912/skills/github-readme-design/references/renderers.md#local-regeneration):
 
 ```sh
-toolchain_commit='e5a50c34bf66264a436288f96e44db9caa305912' # v0.2.0
+toolchain_commit='e5a50c34bf66264a436288f96e44db9caa305912'
 toolchain_dir="$PWD/.build/presentation-toolchain"
 mkdir -p "$toolchain_dir"
 curl -fsSL "https://api.github.com/repos/showxu/skills/tarball/$toolchain_commit" \
