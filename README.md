@@ -59,7 +59,7 @@ for conformance, 1 for drift/local failure and 2 for unknown observations.
 Offline and public modes do not establish settings conformance.
 
 Follow the family's
-[workflow integration guide](https://github.com/agents-tools/.github/blob/33cf243386ed5742fc300a119d58e768c8ba6caf/docs/reference/workflow-integration.md)
+[workflow integration guide](https://github.com/agents-tools/.github/blob/d88103a9a576c9cfe9561a5d58c803255fea72f4/docs/reference/workflow-integration.md)
 when updating pins or activating protection. Update `standard_revision` and
 the policy caller together. The CI and policy workflows run on branch pushes so adoption
 can be validated before opening a pull request; their required contexts are
@@ -157,12 +157,12 @@ pinned profile workflow revision, with operational values in
 `DESIGN.md` owns the visual tokens in Google's DESIGN.md front matter and the
 icon entries. Read it before visual or asset work. The same pinned TypeScript
 toolchain lints DESIGN and renders profiles, social previews and terminals. Use
-the package at `7a983a1599135176e632dc4c9f5784972bfb27de` (`v0.2.0`) in the
+the package at `9e5d7268232b78f5fbef21ccfb9e3a079f2ef7e3` (`v0.1.0`) in the
 ignored `.build/presentation-toolchain`, following its [local regeneration
-contract](https://github.com/showxu/skills/blob/7a983a1599135176e632dc4c9f5784972bfb27de/skills/github-readme-design/references/renderers.md#local-regeneration):
+contract](https://github.com/showxu/skills/blob/9e5d7268232b78f5fbef21ccfb9e3a079f2ef7e3/skills/github-readme-design/references/renderers.md#local-regeneration):
 
 ```sh
-toolchain_commit='7a983a1599135176e632dc4c9f5784972bfb27de' # v0.2.0
+toolchain_commit='9e5d7268232b78f5fbef21ccfb9e3a079f2ef7e3' # v0.1.0
 toolchain_dir="$PWD/.build/presentation-toolchain"
 mkdir -p "$toolchain_dir"
 curl -fsSL "https://api.github.com/repos/showxu/skills/tarball/$toolchain_commit" \

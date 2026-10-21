@@ -92,7 +92,7 @@ jobs:
           chmod +x "$RUNNER_TEMP/executable/$EXECUTABLE_PATH"
       - name: Check terminal presentation
         if: ${{ steps.inputs.outputs.kind == 'tool' }}
-        uses: showxu/skills/skills/github-readme-design/scripts@7a983a1599135176e632dc4c9f5784972bfb27de # v0.2.0
+        uses: showxu/skills/skills/github-readme-design/scripts@9e5d7268232b78f5fbef21ccfb9e3a079f2ef7e3 # v0.1.0
         with:
           asset: terminal
           command: check
@@ -103,7 +103,7 @@ jobs:
           artifact-dir: ${{ runner.temp }}/presentation/terminal
       - name: Check social preview
         if: ${{ !cancelled() && steps.inputs.outcome == 'success' }}
-        uses: showxu/skills/skills/github-readme-design/scripts@7a983a1599135176e632dc4c9f5784972bfb27de # v0.2.0
+        uses: showxu/skills/skills/github-readme-design/scripts@9e5d7268232b78f5fbef21ccfb9e3a079f2ef7e3 # v0.1.0
         with:
           asset: social-preview
           command: check
