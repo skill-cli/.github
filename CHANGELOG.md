@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.1.1
+
+- End the `.github` repository's About sentence with a period, like every
+  member's; its catalog `about` and social preview match, and the agents
+  family is adopted at its 0.1.1 release, which declares that description.
+
 ## 0.1.0
 
 - Define skill-cli's visual tokens and app icon entry in Google's DESIGN.md
