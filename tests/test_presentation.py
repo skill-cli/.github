@@ -113,7 +113,7 @@ class PresentationContractTests(unittest.TestCase):
         pins = re.findall(r'uses: (showxu/skills/skills/github-readme-design/scripts@.*)', workflows)
         self.assertEqual(len(pins), 4)
         self.assertEqual(set(pins), {
-            'showxu/skills/skills/github-readme-design/scripts@7a983a1599135176e632dc4c9f5784972bfb27de # v0.2.0'
+            'showxu/skills/skills/github-readme-design/scripts@9e5d7268232b78f5fbef21ccfb9e3a079f2ef7e3 # v0.1.0'
         })
 
 
