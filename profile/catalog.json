@@ -2,7 +2,7 @@
   "organization": {
     "login": "skill-cli",
     "name": "skill-cli",
-    "about": "Organization profile, brand and shared standards for skill-cli"
+    "about": "Organization profile, brand and shared standards for skill-cli."
   },
   "promise": "Install and update agent skills, resolved to exact versions.",
   "secondary": "The skills edition of agents: works with Codex, Claude Code, Cursor, Gemini CLI and OpenCode. Upstream changes are previewed before you apply them.",
