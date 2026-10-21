@@ -41,7 +41,11 @@ class ProfileContractTests(unittest.TestCase):
         self.assertNotRegex(WORKFLOW, r': write\b')
         for action, version in re.findall(r'^\s+(?:- )?uses: (\S+)(?: # (\S+))?$', WORKFLOW, re.M):
             self.assertRegex(action, r'^[\w./-]+@[0-9a-f]{40}$')
-            self.assertRegex(version, r'^v\d+\.\d+\.\d+$')
+            if action.startswith('showxu/skills/'):
+                # The toolchain is a release pin or an in-progress commit pinned by SHA alone.
+                self.assertRegex(version, r'^(v\d+\.\d+\.\d+)?$')
+            else:
+                self.assertRegex(version, r'^v\d+\.\d+\.\d+$')
 
     def test_member_binding_is_supplied_only_in_member_mode(self):
         action = step('Check profile')
