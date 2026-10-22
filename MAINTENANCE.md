@@ -1,9 +1,9 @@
 # Maintenance
 
-The agents family [MAINTENANCE](https://github.com/agents-tools/.github/blob/9b2955b052a2b8789e9c6e5f31c073a92163758a/MAINTENANCE.md)
+The agents family [MAINTENANCE](https://github.com/agents-tools/.github/blob/949521dde58022b6780ca7f566e5315f8fad826e/MAINTENANCE.md)
 applies to every skill-cli repository. It owns change flow, signing, settings,
 review, dependencies and workflow adoption. The
-[workflow integration guide](https://github.com/agents-tools/.github/blob/9b2955b052a2b8789e9c6e5f31c073a92163758a/docs/reference/workflow-integration.md)
+[workflow integration guide](https://github.com/agents-tools/.github/blob/949521dde58022b6780ca7f566e5315f8fad826e/docs/reference/workflow-integration.md)
 owns the reusable workflow interfaces and activation checks.
 [VERSIONING.md](VERSIONING.md) records skill-cli's release values;
 [DESIGN.md](DESIGN.md) owns its identity.
@@ -17,14 +17,14 @@ comes from `profile/catalog.json`'s `description`. The private
 `.github-private` member dashboard is declared like the public members; the
 family checker reports its Free-plan ruleset limitation as an explicit `GAP`.
 
-The reviewed automation revision is `9b2955b052a2b8789e9c6e5f31c073a92163758a`.
+The reviewed automation revision is `949521dde58022b6780ca7f566e5315f8fad826e`.
 The policy caller and read-only settings checker use this same revision.
 
 <!-- settings-declaration -->
 ```json
 {
   "schema": 1,
-  "standard_revision": "9b2955b052a2b8789e9c6e5f31c073a92163758a",
+  "standard_revision": "949521dde58022b6780ca7f566e5315f8fad826e",
   "repositories": {
     "skill-cli/.github": {
       "required_checks": [
@@ -51,6 +51,13 @@ The policy caller and read-only settings checker use this same revision.
         "policy / policy",
         "homebrew",
         "presentation / presentation"
+      ],
+      "release_tag_patterns": []
+    },
+    "skill-cli/skill-cli.github.io": {
+      "required_checks": [
+        "policy / policy",
+        "site"
       ],
       "release_tag_patterns": []
     },
@@ -89,6 +96,6 @@ Legacy release tag exceptions are listed in [VERSIONING.md](VERSIONING.md#legacy
 
 **Deferred: Codex code review.** skill-cli organization connection, repository
 selection and automatic review verification remain deferred under the
-[family advisory-review declaration](https://github.com/agents-tools/.github/blob/9b2955b052a2b8789e9c6e5f31c073a92163758a/MAINTENANCE.md#advisory-review).
+[family advisory-review declaration](https://github.com/agents-tools/.github/blob/949521dde58022b6780ca7f566e5315f8fad826e/MAINTENANCE.md#advisory-review).
 Existing review receipts in `skill-cli/cli` do not establish organization-wide
 activation.

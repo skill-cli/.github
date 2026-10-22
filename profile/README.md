@@ -4,7 +4,7 @@
 
 <p align="center">The skills edition of agents: works with Codex, Claude Code, Cursor, Gemini CLI and OpenCode. Upstream changes are previewed before you apply them.</p>
 
-<p align="center"><a href="https://github.com/skill-cli/cli/blob/master/Documentation/Reference/CLI.md">Documentation</a> · <a href="https://github.com/skill-cli/.github/blob/master/CONTRIBUTING.md">Contributing</a> · <a href="https://github.com/skill-cli/.github/blob/master/SECURITY.md">Security</a> · <a href="https://github.com/skill-cli/.github/blob/master/SUPPORT.md">Support</a></p>
+<p align="center"><a href="https://skill-cli.github.io/">Documentation</a> · <a href="https://github.com/skill-cli/.github/blob/master/CONTRIBUTING.md">Contributing</a> · <a href="https://github.com/skill-cli/.github/blob/master/SECURITY.md">Security</a> · <a href="https://github.com/skill-cli/.github/blob/master/SUPPORT.md">Support</a></p>
 
 <h2>Get started</h2>
 
@@ -24,6 +24,12 @@ skill list
 
 <table>
 <tr><td><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/skill-cli/.github/HEAD/profile/assets/icon.png"><img src="https://raw.githubusercontent.com/skill-cli/.github/HEAD/profile/assets/icon-dark.png" width="40" height="40" alt="homebrew-tap icon"></picture></td><td><strong><a href="https://github.com/skill-cli/homebrew-tap">homebrew-tap</a></strong><br>Install skill with Homebrew.</td></tr>
+</table>
+
+<h2>Learn</h2>
+
+<table>
+<tr><td><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/skill-cli/.github/HEAD/profile/assets/icon.png"><img src="https://raw.githubusercontent.com/skill-cli/.github/HEAD/profile/assets/icon-dark.png" width="40" height="40" alt="skill-cli.github.io icon"></picture></td><td><strong><a href="https://github.com/skill-cli/skill-cli.github.io">skill-cli.github.io</a></strong><br>Source for the skill website.</td></tr>
 </table>
 
 <p><a href="https://github.com/showxu">Maintained by @showxu</a></p>

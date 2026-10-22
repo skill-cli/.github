@@ -7,6 +7,7 @@
   "promise": "Install and update agent skills, resolved to exact versions.",
   "secondary": "The skills edition of agents: works with Codex, Claude Code, Cursor, Gemini CLI and OpenCode. Upstream changes are previewed before you apply them.",
   "description": "Install and update the skills of Codex, Claude Code, Cursor, Gemini CLI and OpenCode, resolved to exact versions.",
+  "website": "https://skill-cli.github.io/",
   "mark": {
     "light": "https://raw.githubusercontent.com/skill-cli/.github/HEAD/profile/assets/icon-dark.png",
     "dark": "https://raw.githubusercontent.com/skill-cli/.github/HEAD/profile/assets/icon.png"
@@ -14,7 +15,7 @@
   "navigation": {
     "documentation": {
       "label": "Documentation",
-      "url": "https://github.com/skill-cli/cli/blob/master/Documentation/Reference/CLI.md"
+      "url": "https://skill-cli.github.io/"
     },
     "contributing": {
       "label": "Contributing",
@@ -67,6 +68,22 @@
           "kind": "distribution",
           "title": "homebrew-tap",
           "about": "Install skill with Homebrew."
+        }
+      ]
+    },
+    {
+      "title": "Learn",
+      "repositories": [
+        {
+          "name": "skill-cli.github.io",
+          "outcome": "Source for the skill website.",
+          "icon": {
+            "light": "https://raw.githubusercontent.com/skill-cli/.github/HEAD/profile/assets/icon-dark.png",
+            "dark": "https://raw.githubusercontent.com/skill-cli/.github/HEAD/profile/assets/icon.png"
+          },
+          "kind": "website",
+          "title": "skill-cli.github.io",
+          "about": "Source for the skill website."
         }
       ]
     }
