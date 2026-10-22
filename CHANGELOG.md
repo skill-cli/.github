@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- The profile links the [skill website](https://skill-cli.github.io/) as its
+  documentation and lists `skill-cli.github.io` under Learn. The organization
+  adopts the new member from the agents family standard at the commit that
+  declares it.
+
 ## 0.1.1
 
 - End the `.github` repository's About sentence with a period, like every

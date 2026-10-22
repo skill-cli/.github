@@ -18,4 +18,4 @@ jobs:
   policy:
     permissions:
       contents: read
-    uses: agents-tools/.github/.github/workflows/policy.yml@9b2955b052a2b8789e9c6e5f31c073a92163758a # v0.1.1
+    uses: agents-tools/.github/.github/workflows/policy.yml@949521dde58022b6780ca7f566e5315f8fad826e
