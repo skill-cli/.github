@@ -22,7 +22,7 @@ jobs:
     with:
       organization: skill-cli
       declaration-repository: agents-tools/.github
-      declaration-revision: '0000000000000000000000000000000000000000'
+      declaration-revision: 6add3acfbed4e3bfbdb26db19072611772326799
       catalog-repository: ${{ github.repository }}
       catalog-revision: ${{ github.sha }}
       mode: public
