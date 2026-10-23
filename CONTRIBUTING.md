@@ -9,10 +9,15 @@ follow its repository-specific development instructions. Update tests and
 documentation with behavior changes. The CLI keeps its own
 [development notes](https://github.com/skill-cli/cli/blob/master/CONTRIBUTING.md).
 
-Follow the shared [maintenance change flow](https://github.com/skill-cli/.github/blob/master/MAINTENANCE.md)
+Follow the shared [maintenance change flow](https://github.com/agents-tools/.github/blob/master/MAINTENANCE.md)
 for signing, validation, review and merging, and the
 [versioning standard](https://github.com/skill-cli/.github/blob/master/VERSIONING.md)
 when preparing a release.
+
+Organization catalog and design changes follow the
+[local rendering and validation instructions](https://github.com/skill-cli/.github#local-validation).
+Reusable workflows and repository checkers are maintained in
+[agents-tools/github-workflows](https://github.com/agents-tools/github-workflows).
 
 ## Pull Requests
 

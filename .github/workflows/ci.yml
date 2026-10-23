@@ -15,27 +15,26 @@ permissions:
   contents: read
 
 jobs:
-  presentation:
-    uses: ./.github/workflows/presentation.yml
-  profile:
-    uses: ./.github/workflows/profile.yml
+  organization:
+    permissions:
+      contents: read
+    uses: agents-tools/github-workflows/.github/workflows/organization.yml@0000000000000000000000000000000000000000
+    with:
+      organization: skill-cli
+      declaration-repository: agents-tools/.github
+      declaration-revision: '0000000000000000000000000000000000000000'
+      catalog-repository: ${{ github.repository }}
+      catalog-revision: ${{ github.sha }}
+      mode: public
   check:
+    needs: organization
+    if: always()
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Lint DESIGN.md
-        uses: showxu/skills/skills/github-readme-design/scripts@9e5d7268232b78f5fbef21ccfb9e3a079f2ef7e3 # v0.1.0
-        with:
-          asset: design
-          command: lint
-          design: DESIGN.md
-      - run: python3 -m unittest discover -s tests
-      - run: python3 scripts/check --public
+      - name: Require organization checks to succeed
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: git diff --check
+          ORGANIZATION_RESULT: ${{ needs.organization.result }}
+        run: test "$ORGANIZATION_RESULT" = success

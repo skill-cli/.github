@@ -136,8 +136,9 @@ regenerate.
 
 This file follows Google's [DESIGN.md format](https://github.com/google-labs-code/design.md)
 (`version: alpha`). Every token lives in the front matter; the sections below
-explain intent and cite token names instead of values. CI lints this file
-with the official `@google/design.md` parser and rejects any error or warning.
+explain intent and cite token names instead of values. Lint this file locally
+with the official `@google/design.md` parser through the toolchain; validation
+requires zero errors and zero warnings.
 `github-readme-design`'s toolchain renders terminal demos, social previews and
 the organization profiles from these tokens through the same parser. Change a
 token, then regenerate every output that reads it.
@@ -200,8 +201,9 @@ sentence wraps.
 ### Organization profile
 
 The public profile (`profile/README.md`) and the member dashboard in the
-private `.github-private` repository are rendered by `github-readme-design`'s
-toolchain from `profile/catalog.json`. The umbrella mark is a
+private `.github-private` repository are rendered locally by
+`github-readme-design`'s toolchain from `profile/catalog.json`. The dashboard
+also supplies its member input and the accepted catalog revision. The umbrella mark is a
 `profile-header-icon` square on the public profile and a
 `profile-member-header-icon` square on the dashboard; repository icons use
 `profile-row-icon` and `profile-member-row-icon`.
@@ -254,8 +256,9 @@ change, which renderers merge over the base.
 | `icon` | The catalog entry's light-page icon: the skill mark in its dark appearance, which keeps its edge on the light canvas |
 
 Each repository commits its card at
-`.github/assets/social-preview/social-preview.png`, and its presentation check
-compares it with a fresh render from this file at the pinned standard.
+`.github/assets/social-preview/social-preview.png`. Render and check the card
+locally from this file using the
+[toolchain commands](https://github.com/showxu/skills/blob/master/skills/github-readme-design/references/renderers.md).
 
 ## Do's and Don'ts
 
