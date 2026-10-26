@@ -1,3 +1,6 @@
 .build/
-.agent/
 .DS_Store
+/.agent/*
+!/.agent/instructions/
+!/.agent/agents.json
+!/.agent/agents.resolved
